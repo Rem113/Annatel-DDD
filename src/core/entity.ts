@@ -18,12 +18,12 @@ export interface EntityProps {
 }
 
 export abstract class Entity<T extends EntityProps> {
-	private readonly props: T
-	private readonly id: UniqueId
+	protected readonly props: T
+	protected readonly id: UniqueId
 
-	constructor(props: T, id?: string) {
+	constructor(props: T, id?: UniqueId) {
 		this.props = props
-		this.id = new UniqueId(id)
+		this.id = id ? id : new UniqueId()
 	}
 
 	equals(other: Entity<T>): boolean {
