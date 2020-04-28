@@ -1,0 +1,17 @@
+{
+	"name": "annatel-watch-api",
+	"version": "0.1.0",
+	"main": "src/app.js",
+	"author": "Hillel Saal & Gabriel Elbaz",
+	"license": "MIT",
+	"scripts": {
+		"dev": "rm -rf dist && tsc && node dist/auth/user.e.js"
+	},
+	"dependencies": {
+		"shallow-equal-object": "^1.1.1",
+		"uuid": "^7.0.3"
+	},
+	"devDependencies": {
+		"@types/uuid": "^7.0.3"
+	}
+}
