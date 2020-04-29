@@ -1,9 +1,5 @@
 import { Entity, UniqueId } from "./entity"
-
-export interface DomainEvent {
-	occured_at: Date
-	aggregate_id: UniqueId
-}
+import { DomainEvent, DomainEventsDispatcher } from "./domain_events"
 
 export abstract class AggregateRoot<T> extends Entity<T> {
 	private domain_events: DomainEvent[]
@@ -14,7 +10,7 @@ export abstract class AggregateRoot<T> extends Entity<T> {
 	}
 
 	get id(): UniqueId {
-		return this.id
+		return this._id
 	}
 
 	get events(): DomainEvent[] {
@@ -23,6 +19,8 @@ export abstract class AggregateRoot<T> extends Entity<T> {
 
 	dispatch_event(event: DomainEvent) {
 		this.domain_events.push(event)
+
+		DomainEventsDispatcher.mark_dirty_aggregate(this)
 
 		this.log_event(event)
 	}

@@ -1,8 +1,10 @@
+export class Unit {}
+
 export abstract class Result<T> {
 	private readonly value: T | string
 	private readonly is_valid: boolean
 
-	constructor(value: T | string, is_valid: boolean) {
+	protected constructor(value: T | string, is_valid: boolean) {
 		this.value = value
 		this.is_valid = is_valid
 	}
@@ -45,13 +47,13 @@ export abstract class Result<T> {
 	}
 }
 
-export class Err<T> extends Result<T> {
+class Err<T> extends Result<T> {
 	constructor(error: string) {
 		super(error, false)
 	}
 }
 
-export class Ok<T> extends Result<T> {
+class Ok<T> extends Result<T> {
 	constructor(value: T) {
 		super(value, true)
 	}

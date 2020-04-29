@@ -17,7 +17,7 @@ export class Email extends ValueObject<EmailProps> {
 		return Result.ok(new Email(props))
 	}
 
-	email(): string {
+	get email(): string {
 		return this.value.email
 	}
 }
