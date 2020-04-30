@@ -1,12 +1,14 @@
-import { EntityProps } from "../core/entity"
+import { EntityProps, UniqueId } from "../core/entity"
 import { Email } from "./email.vo"
 import Result from "../core/result"
 import { AggregateRoot } from "../core/aggregate_root"
 import { Password } from "./password.vo"
+import { Hash } from "./hash.vo"
 
 export interface AccountProps extends EntityProps {
+	id?: UniqueId
 	email: Email
-	password: Password
+	password: Password | Hash
 }
 
 export class Account extends AggregateRoot<AccountProps> {
@@ -18,11 +20,7 @@ export class Account extends AggregateRoot<AccountProps> {
 		return this.props.email.email
 	}
 
-	get password(): string {
-		return this.props.password.password
-	}
-
-	hash_password() {
-		this.props.password = this.props.password.hash()
+	get password_hash(): string {
+		return this.props.password.hash
 	}
 }

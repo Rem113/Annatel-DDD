@@ -9,9 +9,9 @@ import {
 	InvalidInput,
 	EmailExists,
 	AccountCreationFailed,
+	RegisterFailure,
 } from "./register/register.failures"
 import Either from "../core/either"
-import Failure from "../core/failure"
 import Result from "../core/result"
 
 @injectable()
@@ -25,9 +25,10 @@ export class AccountService {
 	async register(
 		email: string,
 		password: string
-	): Promise<Either<Failure, RegisterDTO>> {
+	): Promise<Either<RegisterFailure, RegisterDTO>> {
+		// Validate input
 		const email_vo = Email.create({ email })
-		const password_vo = Password.create({ password })
+		const password_vo = Password.create({ password, hashed: false })
 
 		if (!Result.are_ok([email_vo, password_vo]))
 			return Either.left(
@@ -37,12 +38,14 @@ export class AccountService {
 				})
 			)
 
+		// Checks that email is available
 		const previous_account = await this.account_repo.with_email(
 			email_vo.get_val()
 		)
 
 		if (previous_account.has_some()) return Either.left(new EmailExists())
 
+		// Create account
 		const account_vo = Account.create({
 			email: email_vo.get_val(),
 			password: password_vo.get_val(),
@@ -51,8 +54,6 @@ export class AccountService {
 		if (account_vo.is_err()) return Either.left(new AccountCreationFailed())
 
 		const account = account_vo.get_val()
-
-		account.hash_password()
 
 		account.dispatch_event(new AccountCreatedEvent(account.id))
 

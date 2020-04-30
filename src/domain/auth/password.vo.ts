@@ -14,14 +14,18 @@ export class Password extends ValueObject<PasswordProps> {
 		return Result.ok(new Password(props))
 	}
 
+	compare_hash(hash: string): boolean {
+		return this.hash === hash
+	}
+
 	get password(): string {
 		return this.value.password
 	}
 
-	hash(): Password {
+	get hash(): string {
 		const salt = bcrypt.genSaltSync(10)
 		const hash = bcrypt.hashSync(this.value.password, salt)
 
-		return Password.create({ password: hash }).get_val()
+		return hash
 	}
 }

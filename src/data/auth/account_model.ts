@@ -1,9 +1,8 @@
 import { model, Schema, Document } from "mongoose"
-import { IAccount } from "../../domain/auth/i_account_repository"
 import { DomainEventsDispatcher } from "../../domain/core/domain_events"
 import { UniqueId } from "../../domain/core/entity"
 
-export interface IAccountDocument extends Document, IAccount {
+export interface IAccountDocument extends Document {
 	email: string
 	password: string
 }

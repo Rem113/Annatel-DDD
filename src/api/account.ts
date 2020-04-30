@@ -4,6 +4,7 @@ import { AccountService } from "../domain/auth/account_service"
 import {
 	InvalidInput,
 	EmailExists,
+	AccountCreationFailed,
 } from "../domain/auth/register/register.failures"
 
 export default () => {
@@ -18,10 +19,14 @@ export default () => {
 
 		return result.fold(
 			(err) => {
-				if (err instanceof InvalidInput || err instanceof EmailExists) {
-					return res.status(400).json(err.unwrap())
-				} else {
-					return res.status(500).json(err.unwrap())
+				switch (err.constructor) {
+					case InvalidInput:
+					case EmailExists:
+						return res.status(400).json(err.unwrap())
+					case AccountCreationFailed:
+						return res.status(500).json(err.unwrap())
+					default:
+						throw new Error(`Unhandled case: ${err}`)
 				}
 			},
 			(register_info) => res.status(201).json(register_info)
