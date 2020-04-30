@@ -1,6 +1,6 @@
 import { EntityProps } from "../core/entity"
 import { Email } from "./email.vo"
-import { Result } from "../core/result"
+import Result from "../core/result"
 import { AggregateRoot } from "../core/aggregate_root"
 import { Password } from "./password.vo"
 

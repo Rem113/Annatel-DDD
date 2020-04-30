@@ -1,5 +1,5 @@
 import { ValueObjectProps, ValueObject } from "../core/value_object"
-import { Result } from "../core/result"
+import Result from "../core/result"
 
 export interface EmailProps extends ValueObjectProps {
 	email: string
@@ -11,6 +11,9 @@ export class Email extends ValueObject<EmailProps> {
 	)
 
 	static create(props: EmailProps): Result<Email> {
+		if (props.email === null || props.email === undefined)
+			return Result.fail("Please enter an email")
+
 		if (!Email.email_regex.test(props.email))
 			return Result.fail("Not a valid email")
 
