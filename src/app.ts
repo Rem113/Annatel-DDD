@@ -1,16 +1,17 @@
-import mongoose_loader from "./loaders/mongoose"
+import "reflect-metadata"
+
+import load from "./loaders"
 import { Email } from "./domain/auth/email.vo"
 import { Password } from "./domain/auth/password.vo"
 import { Account } from "./domain/auth/account.e"
-import { AccountRepository } from "./data/auth/account_repository"
-import { AccountModel } from "./data/auth/account_model"
 import { AccountService } from "./domain/auth/account_service"
 import { DomainEventsDispatcher } from "./domain/core/domain_events"
 import { AccountCreatedEvent } from "./domain/auth/account_created.de"
 import { Result } from "./domain/core/result"
+import { container } from "tsyringe"
 
 const main = async () => {
-	await mongoose_loader()
+	await load()
 
 	DomainEventsDispatcher.register_handler(AccountCreatedEvent.name, (event) =>
 		console.log(event.occured_at)
@@ -36,8 +37,7 @@ const main = async () => {
 		async (account) => {
 			account.hash_password()
 
-			const account_repo = new AccountRepository(AccountModel)
-			const account_service = new AccountService(account_repo)
+			const account_service = container.resolve(AccountService)
 
 			const result = await account_service.register(account)
 			result.fold(

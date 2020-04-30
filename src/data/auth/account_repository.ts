@@ -9,11 +9,15 @@ import { Email } from "../../domain/auth/email.vo"
 import { Maybe } from "../../domain/core/maybe"
 import { IAccountDocument } from "./account_model"
 import { AccountMapper } from "./account_mapper"
+import { injectable, inject } from "tsyringe"
 
+export type IAccountModel = Model<IAccountDocument>
+
+@injectable()
 export class AccountRepository implements IAccountRepository {
-	private readonly account_model: Model<IAccountDocument>
+	private readonly account_model: IAccountModel
 
-	constructor(account_model: Model<IAccountDocument>) {
+	constructor(@inject("IAccountModel") account_model: IAccountModel) {
 		this.account_model = account_model
 	}
 

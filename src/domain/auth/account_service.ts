@@ -3,11 +3,13 @@ import { Account } from "./account.e"
 import { Result, Unit } from "../core/result"
 import { AccountCreatedEvent } from "./account_created.de"
 import { Email } from "./email.vo"
+import { injectable, inject } from "tsyringe"
 
+@injectable()
 export class AccountService {
 	private readonly account_repo: IAccountRepository
 
-	constructor(account_repo: IAccountRepository) {
+	constructor(@inject("IAccountRepository") account_repo: IAccountRepository) {
 		this.account_repo = account_repo
 	}
 
