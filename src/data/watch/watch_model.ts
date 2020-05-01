@@ -2,10 +2,10 @@ import { model, Schema, Document } from "mongoose"
 import { DomainEventsDispatcher } from "../../domain/core/domain_events"
 
 export interface IWatchDocument extends Document {
-	_id: string
+	serial: string
 	vendor: string
-	inserted_at: Date
-	updated_at: Date
+	inserted_at?: Date
+	updated_at?: Date
 }
 
 const WatchSchema = new Schema({

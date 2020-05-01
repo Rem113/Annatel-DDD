@@ -22,8 +22,12 @@
 
 ### Fields
 
-- SerialNumber
+- Vendor
+- Serial
 - Messages
+  - Type
+  - Length
+  - Payload
 
 ### Commands
 

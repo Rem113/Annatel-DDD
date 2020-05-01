@@ -86,21 +86,23 @@ export class AccountService {
 			)
 
 		// Check that the email exists
-		const account = await this.account_repo.with_email(email_vo.get_val())
+		const maybe_account = await this.account_repo.with_email(email_vo.get_val())
 
-		if (!account.has_some()) return Either.left(new EmailDoesNotExist())
+		if (!maybe_account.has_some()) return Either.left(new EmailDoesNotExist())
+
+		const account = maybe_account.get_val()
 
 		// Compare password hashes
 		const password_is_valid = password_vo
 			.get_val()
-			.compare_hash(account.get_val().password_hash)
+			.compare_hash(account.password_hash)
 
 		if (!password_is_valid) return Either.left(new InvalidPassword())
 
-		account.get_val().dispatch_event(new AccountLogin(account.get_val().id))
-		DomainEventsDispatcher.dispatch_events_for_aggregate(account.get_val().id)
+		account.dispatch_event(new AccountLogin(account.id))
+		DomainEventsDispatcher.dispatch_events_for_aggregate(account.id)
 
-		const token = account.get_val().generate_token()
+		const token = account.generate_token()
 		return Either.right({ token })
 	}
 }

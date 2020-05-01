@@ -27,7 +27,7 @@ export class Account extends AggregateRoot<AccountProps> {
 	}
 
 	generate_token(): string {
-		const payload = { id: this.props.id, email: this.props.email }
-		return jwt.sign(payload, "it is a secret", { expiresIn: 3600 })
+		const payload = { id: this.id.to_string(), email: this.email }
+		return jwt.sign(payload, process.env.SECRET!, { expiresIn: 3600 })
 	}
 }

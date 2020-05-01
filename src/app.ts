@@ -1,6 +1,7 @@
 import "reflect-metadata"
+require("dotenv").config()
 
-import load from "./loaders"
+import load from "./config"
 import { DomainEventsDispatcher } from "./domain/core/domain_events"
 import express from "express"
 import {
