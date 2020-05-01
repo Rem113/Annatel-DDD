@@ -1,7 +1,7 @@
-import { Account } from "../../domain/auth/account.e"
+import { Account } from "../../domain/account/account.agg"
 import { IAccountDocument } from "./account_model"
-import { Email } from "../../domain/auth/email.vo"
-import { Hash } from "../../domain/auth/hash.vo"
+import { Email } from "../../domain/account/email.vo"
+import { Hash } from "../../domain/account/hash.vo"
 import { UniqueId } from "../../domain/core/entity"
 
 export class AccountMapper {
@@ -18,6 +18,8 @@ export class AccountMapper {
 			id: new UniqueId(document._id),
 			email: Email.create({ email: document.email }).get_val(),
 			password: Hash.create({ hash: document.password }).get_val(),
+			inserted_at: document.inserted_at,
+			updated_at: document.updated_at,
 		}
 
 		return Account.create(account).get_val()

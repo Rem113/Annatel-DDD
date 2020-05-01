@@ -4,8 +4,8 @@ import { DomainEvent, DomainEventsDispatcher } from "./domain_events"
 export abstract class AggregateRoot<T> extends Entity<T> {
 	private domain_events: DomainEvent[]
 
-	constructor(props: T, id?: UniqueId) {
-		super(props, id)
+	constructor(props: T) {
+		super(props)
 		this.domain_events = []
 	}
 
@@ -35,6 +35,8 @@ export abstract class AggregateRoot<T> extends Entity<T> {
 		console.info(
 			"[Domain Event Created]:",
 			this_class.constructor.name,
+			"#",
+			this._id.to_string(),
 			"==>",
 			domain_event_class.constructor.name
 		)

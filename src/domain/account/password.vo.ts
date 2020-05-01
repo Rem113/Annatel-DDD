@@ -7,6 +7,8 @@ export interface PasswordProps extends ValueObjectProps {
 }
 
 export class Password extends ValueObject<PasswordProps> {
+	private _hash?: string
+
 	static create(props: PasswordProps): Result<Password> {
 		if (props.password === null || props.password === undefined)
 			return Result.fail("Please enter a password")
@@ -15,7 +17,7 @@ export class Password extends ValueObject<PasswordProps> {
 	}
 
 	compare_hash(hash: string): boolean {
-		return this.hash === hash
+		return bcrypt.compareSync(this.password, hash)
 	}
 
 	get password(): string {
@@ -23,9 +25,11 @@ export class Password extends ValueObject<PasswordProps> {
 	}
 
 	get hash(): string {
-		const salt = bcrypt.genSaltSync(10)
-		const hash = bcrypt.hashSync(this.value.password, salt)
+		if (!this._hash) {
+			const salt = bcrypt.genSaltSync(10)
+			this._hash = bcrypt.hashSync(this.value.password, salt)
+		}
 
-		return hash
+		return this._hash
 	}
 }

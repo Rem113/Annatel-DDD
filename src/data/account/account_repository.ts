@@ -1,8 +1,8 @@
 import { Model } from "mongoose"
 
-import { IAccountRepository } from "../../domain/auth/i_account_repository"
-import { Account } from "../../domain/auth/account.e"
-import { Email } from "../../domain/auth/email.vo"
+import { IAccountRepository } from "../../domain/account/i_account_repository"
+import { Account } from "../../domain/account/account.agg"
+import { Email } from "../../domain/account/email.vo"
 import { Maybe } from "../../domain/core/maybe"
 import { IAccountDocument } from "./account_model"
 import { AccountMapper } from "./account_mapper"

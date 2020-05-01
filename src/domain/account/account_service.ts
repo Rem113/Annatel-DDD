@@ -1,18 +1,22 @@
 import { IAccountRepository } from "./i_account_repository"
-import { Account } from "./account.e"
-import { AccountCreatedEvent } from "./account_created.de"
+import { Account } from "./account.agg"
 import { Email } from "./email.vo"
 import { injectable, inject } from "tsyringe"
-import RegisterDTO from "./register/register.dto"
 import { Password } from "./password.vo"
+import Either from "../core/either"
+import Result from "../core/result"
 import {
+	RegisterFailure,
 	InvalidInput,
 	EmailExists,
 	AccountCreationFailed,
-	RegisterFailure,
-} from "./register/register.failures"
-import Either from "../core/either"
-import Result from "../core/result"
+	LoginFailure,
+	EmailDoesNotExist,
+	InvalidPassword,
+} from "./account_failures"
+import { DomainEventsDispatcher } from "../core/domain_events"
+import { AccountCreatedEvent, AccountLogin } from "./account_events"
+import { RegisterDTO, LoginDTO } from "./account_dtos"
 
 @injectable()
 export class AccountService {
@@ -63,5 +67,40 @@ export class AccountService {
 			id: account.id.to_string(),
 			email: account.email,
 		})
+	}
+
+	async login(
+		email: string,
+		password: string
+	): Promise<Either<LoginFailure, LoginDTO>> {
+		// Validate input
+		const email_vo = Email.create({ email })
+		const password_vo = Password.create({ password, hashed: false })
+
+		if (!Result.are_ok([email_vo, password_vo]))
+			return Either.left(
+				new InvalidInput({
+					email: email_vo.get_err()!,
+					password: password_vo.get_err()!,
+				})
+			)
+
+		// Check that the email exists
+		const account = await this.account_repo.with_email(email_vo.get_val())
+
+		if (!account.has_some()) return Either.left(new EmailDoesNotExist())
+
+		// Compare password hashes
+		const password_is_valid = password_vo
+			.get_val()
+			.compare_hash(account.get_val().password_hash)
+
+		if (!password_is_valid) return Either.left(new InvalidPassword())
+
+		account.get_val().dispatch_event(new AccountLogin(account.get_val().id))
+		DomainEventsDispatcher.dispatch_events_for_aggregate(account.get_val().id)
+
+		const token = account.get_val().generate_token()
+		return Either.right({ token })
 	}
 }

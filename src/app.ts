@@ -2,8 +2,11 @@ import "reflect-metadata"
 
 import load from "./loaders"
 import { DomainEventsDispatcher } from "./domain/core/domain_events"
-import { AccountCreatedEvent } from "./domain/auth/account_created.de"
 import express from "express"
+import {
+	AccountCreatedEvent,
+	AccountLogin,
+} from "./domain/account/account_events"
 
 const main = async () => {
 	const app = express()
@@ -11,7 +14,10 @@ const main = async () => {
 	await load(app)
 
 	DomainEventsDispatcher.register_handler(AccountCreatedEvent.name, (event) =>
-		console.log(event.aggregate_id)
+		console.log(event)
+	)
+	DomainEventsDispatcher.register_handler(AccountLogin.name, (event) =>
+		console.log(event)
 	)
 }
 
