@@ -12,7 +12,6 @@ const WatchSchema = new Schema({
 	_id: {
 		required: true,
 		type: String,
-		unique: true,
 	},
 	serial: {
 		required: true,
