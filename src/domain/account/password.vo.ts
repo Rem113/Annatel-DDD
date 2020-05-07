@@ -1,6 +1,7 @@
 import { ValueObject, ValueObjectProps } from "../core/value_object"
 import Result from "../core/result"
 import bcrypt from "bcryptjs"
+import Should from "../core/should"
 
 export interface PasswordProps extends ValueObjectProps {
 	password: string
@@ -10,8 +11,11 @@ export class Password extends ValueObject<PasswordProps> {
 	private _hash?: string
 
 	static create(props: PasswordProps): Result<Password> {
-		if (props.password === null || props.password === undefined)
-			return Result.fail("Please enter a password")
+		const error = Should.not_be_null_or_undefined([
+			{ name: "Password", value: props.password },
+		])
+		if (error.has_some()) return Result.fail(error.get_val() as string)
+
 		if (props.password.length < 8) return Result.fail("Password is too short")
 		return Result.ok(new Password(props))
 	}

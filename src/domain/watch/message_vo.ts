@@ -1,6 +1,6 @@
 import { ValueObjectProps, ValueObject } from "../core/value_object"
 import Result from "../core/result"
-import { Serial } from "./serial.vo"
+import Should from "../core/should"
 
 export enum MessageType {
 	AL,
@@ -51,6 +51,16 @@ export interface MessageProps extends ValueObjectProps {
 
 export class Message extends ValueObject<MessageProps> {
 	static create(props: MessageProps): Result<Message> {
+		const error = Should.not_be_null_or_undefined([
+			{ name: "type", value: props.type },
+			{ name: "length", value: props.length },
+		])
+
+		if (error.has_some()) return Result.fail(error.get_val() as string)
+
+		if (!Object.values(MessageType).includes(props.type))
+			return Result.fail("Please enter a valid message type")
+
 		return Result.ok(new Message(props))
 	}
 
