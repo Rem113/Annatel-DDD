@@ -36,7 +36,7 @@ const AccountSchema = new Schema({
 })
 
 AccountSchema.pre<IAccountDocument>("findOneAndUpdate", function () {
-	this.updated_at = new Date()
+	this.update({ updated_at: new Date() })
 })
 
 AccountSchema.post<IAccountDocument>("findOneAndUpdate", (account) =>

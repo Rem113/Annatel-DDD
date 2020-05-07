@@ -66,7 +66,7 @@ const WatchSchema = new Schema({
 })
 
 WatchSchema.pre<IWatchDocument>("findOneAndUpdate", function () {
-	this.updated_at = new Date()
+	this.update({ updated_at: Date.now() })
 })
 
 WatchSchema.post<IWatchDocument>("findOneAndUpdate", (watch) =>
