@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
 import Token from "../core/token"
-import { AccountModel } from "../../data/account/account_model"
+import AccountModel from "../../data/account/account_model"
 
 export default async (req: Request, res: Response, next: NextFunction) => {
 	const { authorization } = req.headers

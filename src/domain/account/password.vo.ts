@@ -17,11 +17,7 @@ export class Password extends ValueObject<PasswordProps> {
 	}
 
 	compare_hash(hash: string): boolean {
-		return bcrypt.compareSync(this.password, hash)
-	}
-
-	get password(): string {
-		return this.value.password
+		return bcrypt.compareSync(this.value.password, hash)
 	}
 
 	get hash(): string {

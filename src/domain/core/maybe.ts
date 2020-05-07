@@ -28,6 +28,10 @@ export class Maybe<T> {
 	has_some(): boolean {
 		return this.has
 	}
+
+	is_none(): boolean {
+		return !this.has
+	}
 }
 
 class Some<T> extends Maybe<T> {

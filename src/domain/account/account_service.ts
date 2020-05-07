@@ -61,7 +61,7 @@ export class AccountService {
 
 		account.dispatch_event(new AccountCreatedEvent(account.id))
 
-		await this.account_repo.register(account)
+		await this.account_repo.save(account)
 
 		return Either.right({
 			id: account.id.to_string(),

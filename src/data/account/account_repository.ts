@@ -1,14 +1,10 @@
-import { Model } from "mongoose"
-
 import { IAccountRepository } from "../../domain/account/i_account_repository"
 import { Account } from "../../domain/account/account.agg"
 import { Email } from "../../domain/account/email.vo"
 import { Maybe } from "../../domain/core/maybe"
-import { IAccountDocument } from "./account_model"
+import { IAccountModel } from "./account_model"
 import { AccountMapper } from "./account_mapper"
 import { injectable, inject } from "tsyringe"
-
-export type IAccountModel = Model<IAccountDocument>
 
 @injectable()
 export class AccountRepository implements IAccountRepository {
@@ -26,7 +22,11 @@ export class AccountRepository implements IAccountRepository {
 		return Maybe.none()
 	}
 
-	async register(account: Account): Promise<void> {
-		await this.account_model.create(AccountMapper.to_persistance(account))
+	async save(account: Account): Promise<void> {
+		await this.account_model.findByIdAndUpdate(
+			account.id.to_string(),
+			AccountMapper.to_persistance(account),
+			{ new: true, upsert: true }
+		)
 	}
 }

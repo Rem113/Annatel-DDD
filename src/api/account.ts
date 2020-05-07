@@ -28,7 +28,7 @@ export default () => {
 					case EmailDoesNotExist:
 						return res.status(401).json(err.unwrap())
 					default:
-						throw new Error(`Unhandled case: ${err}`)
+						throw new Error(`Unhandled case: ${err.constructor.name}`)
 				}
 			},
 			(login_dto) => res.status(200).json(login_dto)

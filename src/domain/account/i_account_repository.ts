@@ -4,5 +4,5 @@ import { Account } from "./account.agg"
 
 export interface IAccountRepository {
 	with_email(email: Email): Promise<Maybe<Account>>
-	register(account: Account): Promise<void>
+	save(account: Account): Promise<void>
 }

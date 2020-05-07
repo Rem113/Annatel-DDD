@@ -1,5 +1,6 @@
 import { ValueObjectProps, ValueObject } from "../core/value_object"
 import Result from "../core/result"
+import { Serial } from "./serial.vo"
 
 export enum MessageType {
 	AL,
@@ -51,5 +52,17 @@ export interface MessageProps extends ValueObjectProps {
 export class Message extends ValueObject<MessageProps> {
 	static create(props: MessageProps): Result<Message> {
 		return Result.ok(new Message(props))
+	}
+
+	get length(): number {
+		return this.value.length
+	}
+
+	get type(): MessageType {
+		return this.value.type
+	}
+
+	get payload(): any {
+		return this.value.payload
 	}
 }

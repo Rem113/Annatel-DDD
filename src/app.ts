@@ -8,6 +8,7 @@ import {
 	AccountCreatedEvent,
 	AccountLogin,
 } from "./domain/account/account_events"
+import { MessagePosted, WatchCreated } from "./domain/watch/watch_events"
 
 const main = async () => {
 	const app = express()
@@ -18,6 +19,12 @@ const main = async () => {
 		console.log(event)
 	)
 	DomainEventsDispatcher.register_handler(AccountLogin.name, (event) =>
+		console.log(event)
+	)
+	DomainEventsDispatcher.register_handler(MessagePosted.name, (event) =>
+		console.log(event)
+	)
+	DomainEventsDispatcher.register_handler(WatchCreated.name, (event) =>
 		console.log(event)
 	)
 }
