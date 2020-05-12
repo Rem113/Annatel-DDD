@@ -47,13 +47,14 @@ export interface MessageProps extends ValueObjectProps {
 	type: MessageType
 	length: number
 	payload?: any
+	posted_at: Date
 }
 
 export class Message extends ValueObject<MessageProps> {
 	static create(props: MessageProps): Result<Message> {
 		const error = Should.not_be_null_or_undefined([
-			{ name: "type", value: props.type },
-			{ name: "length", value: props.length },
+			{ name: "Type", value: props.type },
+			{ name: "Length", value: props.length },
 		])
 
 		if (error.has_some()) return Result.fail(error.get_val() as string)
@@ -73,6 +74,10 @@ export class Message extends ValueObject<MessageProps> {
 	}
 
 	get payload(): any {
-		return this.value.payload
+		return this.value.payload ?? {}
+	}
+
+	get posted_at(): Date {
+		return this.value.posted_at
 	}
 }

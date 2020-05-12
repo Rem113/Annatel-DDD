@@ -1,17 +1,19 @@
 import { injectable, inject } from "tsyringe"
 import {
-	InvalidMessage,
-	InvalidInput,
 	PostMessageFailure,
+	InvalidWatchDataFailure,
+	ReadMessagesOfFailure,
+	GetLocationOfFailure,
+	NoLocationDataFailure,
 } from "./watch_failures"
-import { MessagePosted, WatchCreated } from "./watch_events"
-import { MessageType, Message } from "./message_vo"
+import { MessagePosted, WatchCreated, LocationUpdated } from "./watch_events"
+import { Message, MessageType } from "./message.vo"
 import { Serial } from "./serial.vo"
 import { Watch } from "./watch.agg"
 import IWatchRepository from "./i_watch_repository"
 import Either from "../core/either"
-import Failure from "../core/failure"
 import { Unit } from "../core/result"
+import { Location } from "./location.vo"
 
 @injectable()
 export class WatchService {
@@ -22,26 +24,13 @@ export class WatchService {
 	}
 
 	async post_message(
-		serial: string,
-		vendor: string,
-		type: MessageType,
-		length: number,
-		payload?: any
+		message: Message,
+		serial: Serial,
+		vendor: string
 	): Promise<Either<PostMessageFailure, Unit>> {
-		// Create the message
-		const message = Message.create({ type, length, payload })
-
-		if (message.is_err())
-			return Either.left(new InvalidMessage(message.get_err()!))
-
 		// Find the addressed watch
-		const serial_vo = Serial.create({ serial })
-
-		if (serial_vo.is_err())
-			return Either.left(new InvalidInput(serial_vo.get_err() as string))
-
 		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
-			serial_vo.get_val(),
+			serial,
 			vendor
 		)
 
@@ -49,14 +38,17 @@ export class WatchService {
 
 		if (maybe_watch.has_some()) watch = maybe_watch.get_val()
 		else {
+			// If it does not exist, create it
 			const result_watch = Watch.create({
-				serial: serial_vo.get_val(),
+				serial,
 				vendor,
 				messages: [],
 			})
 
 			if (result_watch.is_err())
-				return Either.left(new InvalidInput(result_watch.get_err() as string))
+				return Either.left(
+					new InvalidWatchDataFailure(result_watch.get_err() as string)
+				)
 
 			watch = result_watch.get_val()
 
@@ -64,13 +56,58 @@ export class WatchService {
 		}
 
 		// Post the message, then save the watch's state
-		watch.post_message(message.get_val())
+		watch.post_message(message)
 
 		this.watch_repo.save(watch)
 
 		// Notify
 		watch.dispatch_event(new MessagePosted(watch.id))
 
+		if (message.type === MessageType.UD)
+			watch.dispatch_event(new LocationUpdated(watch.id))
+
 		return Either.right(Unit)
+	}
+
+	async read_messages_of(
+		serial: Serial,
+		vendor: string
+	): Promise<Either<ReadMessagesOfFailure, Message[]>> {
+		// Get the watch
+		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
+			serial,
+			vendor
+		)
+
+		if (maybe_watch.is_none())
+			return Either.left(
+				new InvalidWatchDataFailure("The watch does not exist")
+			)
+		return Either.right(maybe_watch.get_val().messages)
+	}
+
+	async get_location_of(
+		serial: Serial,
+		vendor: string
+	): Promise<Either<GetLocationOfFailure, Location>> {
+		// Get the watch
+		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
+			serial,
+			vendor
+		)
+
+		if (maybe_watch.is_none())
+			return Either.left(
+				new InvalidWatchDataFailure("The watch does not exist")
+			)
+
+		const location = maybe_watch.get_val().location
+
+		if (location === null)
+			return Either.left(
+				new NoLocationDataFailure("There is no location data for this watch")
+			)
+
+		return Either.right(location)
 	}
 }

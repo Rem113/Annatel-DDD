@@ -1,12 +1,13 @@
 import { model, Schema, Document, Model } from "mongoose"
 import { DomainEventsDispatcher } from "../../domain/core/domain_events"
-import { MessageType } from "../../domain/watch/message_vo"
+import { MessageType } from "../../domain/watch/message.vo"
 import { UniqueId } from "../../domain/core/entity"
 
 export interface IMessage {
 	length: number
 	type: MessageType
 	payload?: any
+	posted_at: Date
 }
 
 export interface IWatchDocument extends Document {
@@ -23,7 +24,7 @@ const MessageSchema = new Schema(
 	{
 		posted_at: {
 			type: Date,
-			default: Date.now,
+			required: true,
 		},
 		length: {
 			type: Number,

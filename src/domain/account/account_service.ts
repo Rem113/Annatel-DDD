@@ -15,7 +15,7 @@ import {
 	InvalidPassword,
 } from "./account_failures"
 import { DomainEventsDispatcher } from "../core/domain_events"
-import { AccountCreatedEvent, AccountLogin } from "./account_events"
+import { AccountCreated, AccountLogin } from "./account_events"
 import { RegisterDTO, LoginDTO } from "./account_dtos"
 
 @injectable()
@@ -59,7 +59,7 @@ export class AccountService {
 
 		const account = account_vo.get_val()
 
-		account.dispatch_event(new AccountCreatedEvent(account.id))
+		account.dispatch_event(new AccountCreated(account.id))
 
 		await this.account_repo.save(account)
 

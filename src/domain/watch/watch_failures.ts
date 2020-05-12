@@ -1,7 +1,11 @@
 import Failure from "../core/failure"
 
-export type PostMessageFailure = InvalidMessage | InvalidInput
+export type PostMessageFailure = InvalidWatchDataFailure
+export type ReadMessagesOfFailure = InvalidWatchDataFailure
+export type GetLocationOfFailure =
+	| InvalidWatchDataFailure
+	| NoLocationDataFailure
 
-export class InvalidMessage extends Failure {}
+export class InvalidWatchDataFailure extends Failure {}
 
-export class InvalidInput extends Failure {}
+export class NoLocationDataFailure extends Failure {}

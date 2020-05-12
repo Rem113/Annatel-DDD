@@ -1,4 +1,4 @@
-# Auth context
+# Auth
 
 ## Account
 
@@ -10,13 +10,12 @@
 ### Commands
 
 - Register(Email, Password)
-- Login(Email, Password)
 
 ### Queries
 
-- WithEmail(Email) -> Account
+- Login(Email, Password) -> Token
 
-# Watch context
+# Watch
 
 ## Watch
 
@@ -36,7 +35,7 @@
 ### Queries
 
 - ReadMessagesOf(Watch) -> Messages
-- GetLocationOf(Watch) -> Location
+- LocationOf(Watch) -> Location
 
 ## Parent
 
@@ -54,5 +53,5 @@
 
 ### Queries
 
-- GetGeofencesFor(Watch) -> Geofences
-- GetLinkedWatch() -> Watches
+- GeofencesFor(Watch) -> Geofences
+- LinkedWatches() -> Watches

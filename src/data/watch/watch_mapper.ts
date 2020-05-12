@@ -2,7 +2,7 @@ import WatchModel, { IWatchDocument } from "./watch_model"
 import { Watch } from "../../domain/watch/watch.agg"
 import { UniqueId } from "../../domain/core/entity"
 import { Serial } from "../../domain/watch/serial.vo"
-import { Message } from "../../domain/watch/message_vo"
+import { Message, MessageType } from "../../domain/watch/message.vo"
 
 export class WatchMapper {
 	static to_persistance(watch: Watch): IWatchDocument {
@@ -14,8 +14,9 @@ export class WatchMapper {
 			updated_at: watch.updated_at,
 			messages: watch.messages.map((message) => ({
 				length: message.length,
-				type: message.type,
+				type: MessageType[message.type],
 				payload: message.payload,
+				posted_at: message.posted_at,
 			})),
 		})
 	}
@@ -28,9 +29,13 @@ export class WatchMapper {
 			messages: [
 				...document.messages.map((message) =>
 					Message.create({
-						type: message.type,
+						type:
+							MessageType[
+								(message.type as unknown) as keyof typeof MessageType
+							],
 						length: message.length,
 						payload: message.payload,
+						posted_at: message.posted_at,
 					}).get_val()
 				),
 			],
