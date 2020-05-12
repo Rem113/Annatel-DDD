@@ -46,9 +46,7 @@ export class WatchService {
 			})
 
 			if (result_watch.is_err())
-				return Either.left(
-					new InvalidWatchDataFailure(result_watch.get_err() as string)
-				)
+				return Either.left(new InvalidWatchDataFailure())
 
 			watch = result_watch.get_val()
 
@@ -79,10 +77,7 @@ export class WatchService {
 			vendor
 		)
 
-		if (maybe_watch.is_none())
-			return Either.left(
-				new InvalidWatchDataFailure("The watch does not exist")
-			)
+		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
 		return Either.right(maybe_watch.get_val().messages)
 	}
 
@@ -96,17 +91,11 @@ export class WatchService {
 			vendor
 		)
 
-		if (maybe_watch.is_none())
-			return Either.left(
-				new InvalidWatchDataFailure("The watch does not exist")
-			)
+		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
 
 		const location = maybe_watch.get_val().location
 
-		if (location === null)
-			return Either.left(
-				new NoLocationDataFailure("There is no location data for this watch")
-			)
+		if (location === null) return Either.left(new NoLocationDataFailure())
 
 		return Either.right(location)
 	}

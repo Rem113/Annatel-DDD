@@ -2,12 +2,14 @@ import { Router } from "express"
 import { container } from "tsyringe"
 import { AccountService } from "../domain/account/account_service"
 import {
-	InvalidInput,
 	EmailExists,
 	AccountCreationFailed,
 	InvalidPassword,
 	EmailDoesNotExist,
 } from "../domain/account/account_failures"
+import { Email } from "../domain/account/email.vo"
+import { Password } from "../domain/account/password.vo"
+import Result from "../domain/core/result"
 
 export default () => {
 	const router = Router()
@@ -15,14 +17,23 @@ export default () => {
 	const account_service = container.resolve(AccountService)
 
 	router.get("/login", async (req, res) => {
-		const { email, password } = req.body
+		const email = Email.create({ email: req.body.email })
+		const password = Password.create({ password: req.body.password })
 
-		const result = await account_service.login(email, password)
+		if (!Result.are_ok([email, password]))
+			return res.status(400).json({
+				email: email.get_err(),
+				password: password.get_err(),
+			})
+
+		const result = await account_service.login(
+			email.get_val(),
+			password.get_val()
+		)
 
 		return result.fold(
 			(err) => {
 				switch (err.constructor) {
-					case InvalidInput:
 					case InvalidPassword:
 						return res.status(400).json(err.unwrap())
 					case EmailDoesNotExist:
@@ -43,7 +54,6 @@ export default () => {
 		return result.fold(
 			(err) => {
 				switch (err.constructor) {
-					case InvalidInput:
 					case EmailExists:
 						return res.status(400).json(err.unwrap())
 					case AccountCreationFailed:

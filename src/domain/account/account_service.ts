@@ -27,32 +27,18 @@ export class AccountService {
 	}
 
 	async register(
-		email: string,
-		password: string
+		email: Email,
+		password: Password
 	): Promise<Either<RegisterFailure, RegisterDTO>> {
-		// Validate input
-		const email_vo = Email.create({ email })
-		const password_vo = Password.create({ password, hashed: false })
-
-		if (!Result.are_ok([email_vo, password_vo]))
-			return Either.left(
-				new InvalidInput({
-					email: email_vo.get_err()!,
-					password: password_vo.get_err()!,
-				})
-			)
-
 		// Checks that email is available
-		const previous_account = await this.account_repo.with_email(
-			email_vo.get_val()
-		)
+		const previous_account = await this.account_repo.with_email(email)
 
 		if (previous_account.has_some()) return Either.left(new EmailExists())
 
 		// Create account
 		const account_vo = Account.create({
-			email: email_vo.get_val(),
-			password: password_vo.get_val(),
+			email,
+			password,
 		})
 
 		if (account_vo.is_err()) return Either.left(new AccountCreationFailed())
@@ -70,32 +56,18 @@ export class AccountService {
 	}
 
 	async login(
-		email: string,
-		password: string
+		email: Email,
+		password: Password
 	): Promise<Either<LoginFailure, LoginDTO>> {
-		// Validate input
-		const email_vo = Email.create({ email })
-		const password_vo = Password.create({ password, hashed: false })
-
-		if (!Result.are_ok([email_vo, password_vo]))
-			return Either.left(
-				new InvalidInput({
-					email: email_vo.get_err()!,
-					password: password_vo.get_err()!,
-				})
-			)
-
 		// Check that the email exists
-		const maybe_account = await this.account_repo.with_email(email_vo.get_val())
+		const maybe_account = await this.account_repo.with_email(email)
 
 		if (!maybe_account.has_some()) return Either.left(new EmailDoesNotExist())
 
 		const account = maybe_account.get_val()
 
 		// Compare password hashes
-		const password_is_valid = password_vo
-			.get_val()
-			.compare_hash(account.password_hash)
+		const password_is_valid = password.compare_hash(account.password_hash)
 
 		if (!password_is_valid) return Either.left(new InvalidPassword())
 

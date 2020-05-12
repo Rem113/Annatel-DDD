@@ -1,13 +1,7 @@
 import Failure from "../core/failure"
 
-export type RegisterFailure = InvalidInput | EmailExists | AccountCreationFailed
-export type LoginFailure = InvalidInput | EmailDoesNotExist | InvalidPassword
-
-export class InvalidInput extends Failure {
-	constructor(payload: { email: string; password: string }) {
-		super("Invalid input", payload)
-	}
-}
+export type RegisterFailure = EmailExists | AccountCreationFailed
+export type LoginFailure = EmailDoesNotExist | InvalidPassword
 
 export class EmailDoesNotExist extends Failure {
 	constructor() {
