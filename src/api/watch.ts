@@ -87,14 +87,7 @@ export default () => {
 						throw new Error(`Unhandled case: ${err.constructor.name}`)
 				}
 			},
-			(messages) =>
-				res.status(200).json(
-					messages.map((message) => ({
-						length: message.length,
-						type: MessageType[message.type],
-						payload: message.payload,
-					}))
-				)
+			(dto) => res.status(200).json(dto)
 		)
 	})
 
@@ -121,7 +114,7 @@ export default () => {
 						throw new Error(`Unhandled case: ${err.constructor.name}`)
 				}
 			},
-			(location) => res.status(200).json(location)
+			(dto) => res.status(200).json(dto)
 		)
 	})
 

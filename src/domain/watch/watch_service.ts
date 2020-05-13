@@ -12,8 +12,8 @@ import { Serial } from "./serial.vo"
 import { Watch } from "./watch.agg"
 import IWatchRepository from "./i_watch_repository"
 import Either from "../core/either"
-import { Location } from "./location.vo"
 import { Maybe } from "../core/maybe"
+import { ReadMessagesOfDTO, GetLocationOfDTO } from "./watch_dtos"
 
 @injectable()
 export class WatchService {
@@ -70,7 +70,7 @@ export class WatchService {
 	async read_messages_of(
 		serial: Serial,
 		vendor: string
-	): Promise<Either<ReadMessagesOfFailure, Message[]>> {
+	): Promise<Either<ReadMessagesOfFailure, ReadMessagesOfDTO>> {
 		// Get the watch
 		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
 			serial,
@@ -78,13 +78,20 @@ export class WatchService {
 		)
 
 		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
-		return Either.right(maybe_watch.get_val().messages)
+		return Either.right({
+			messages: maybe_watch.get_val().messages.map((message) => ({
+				type:
+					MessageType[(message.type as unknown) as keyof typeof MessageType],
+				posted_at: message.posted_at,
+				payload: message.payload,
+			})),
+		})
 	}
 
 	async get_location_of(
 		serial: Serial,
 		vendor: string
-	): Promise<Either<GetLocationOfFailure, Location>> {
+	): Promise<Either<GetLocationOfFailure, GetLocationOfDTO>> {
 		// Get the watch
 		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
 			serial,
@@ -93,10 +100,17 @@ export class WatchService {
 
 		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
 
-		const location = maybe_watch.get_val().location
+		const location_update = maybe_watch.get_val().location
 
-		if (location === null) return Either.left(new NoLocationDataFailure())
+		if (location_update === null)
+			return Either.left(new NoLocationDataFailure())
 
-		return Either.right(location)
+		return Either.right({
+			location: {
+				latitude: location_update.latitude,
+				longitude: location_update.longitude,
+				last_update: location_update.last_update,
+			},
+		})
 	}
 }

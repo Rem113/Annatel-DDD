@@ -4,7 +4,7 @@ import Result from "../core/result"
 import { Message, MessageType } from "./message.e"
 import { Serial } from "./serial.vo"
 import Should from "../core/should"
-import { Location } from "./location.vo"
+import { LocationUpdate } from "./location_update.vo"
 
 export interface WatchProps extends EntityProps {
 	serial: Serial
@@ -28,7 +28,7 @@ export class Watch extends AggregateRoot<WatchProps> {
 		return Result.ok(new Watch(props))
 	}
 
-	get location(): Location | null {
+	get location(): LocationUpdate | null {
 		// No messages
 		if (this.messages.length === 0) return null
 		// No update message
@@ -38,9 +38,10 @@ export class Watch extends AggregateRoot<WatchProps> {
 		const last_update_message = this.messages
 			.filter((message) => message.type === MessageType.UD)
 			.reduce((m1, m2) => (m1.posted_at > m2.posted_at ? m1 : m2))
-		return Location.create({
+		return LocationUpdate.create({
 			longitude: last_update_message.payload.longitude,
 			latitude: last_update_message.payload.latitude,
+			last_update: last_update_message.posted_at,
 		}).get_val()
 	}
 

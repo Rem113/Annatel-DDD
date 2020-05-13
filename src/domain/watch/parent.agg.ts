@@ -2,7 +2,6 @@ import { EntityProps, UniqueId } from "../core/entity"
 import { AggregateRoot } from "../core/aggregate_root"
 import Result from "../core/result"
 import { Subscription } from "./subscription.e"
-import { Serial } from "./serial.vo"
 
 export interface ParentProps extends EntityProps {
 	account: UniqueId

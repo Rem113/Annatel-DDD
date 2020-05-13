@@ -32,7 +32,7 @@ export class WatchMapper {
 			messages: [
 				...document.messages.map((message) =>
 					Message.create({
-						id: message._id,
+						id: new UniqueId(message.id),
 						type:
 							MessageType[
 								(message.type as unknown) as keyof typeof MessageType

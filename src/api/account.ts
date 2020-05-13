@@ -42,7 +42,7 @@ export default () => {
 						throw new Error(`Unhandled case: ${err.constructor.name}`)
 				}
 			},
-			(login_dto) => res.status(200).json(login_dto)
+			(dto) => res.status(200).json(dto)
 		)
 	})
 
