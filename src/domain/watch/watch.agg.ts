@@ -1,7 +1,7 @@
 import { AggregateRoot } from "../core/aggregate_root"
 import { EntityProps } from "../core/entity"
 import Result from "../core/result"
-import { Message, MessageType } from "./message.vo"
+import { Message, MessageType } from "./message.e"
 import { Serial } from "./serial.vo"
 import Should from "../core/should"
 import { Location } from "./location.vo"
@@ -56,12 +56,12 @@ export class Watch extends AggregateRoot<WatchProps> {
 		return this.props.messages
 	}
 
-	get inserted_at(): Date | undefined {
-		return this.props.inserted_at
+	get inserted_at(): Date | null {
+		return this.props.inserted_at ?? null
 	}
 
-	get updated_at(): Date | undefined {
-		return this.props.updated_at
+	get updated_at(): Date | null {
+		return this.props.updated_at ?? null
 	}
 
 	post_message(message: Message): void {

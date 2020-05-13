@@ -20,6 +20,11 @@ export class Maybe<T> {
 		return new None()
 	}
 
+	fold(func_some: (val: T) => any, func_none: () => any): any {
+		if (this.has) return func_some(this.value as T)
+		return func_none()
+	}
+
 	get_val(): T {
 		if (!this.has) throw new Error("InvalidOperation: Can't get value of None")
 		return this.value as T

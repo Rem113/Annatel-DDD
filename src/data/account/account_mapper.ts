@@ -10,12 +10,14 @@ export class AccountMapper {
 			_id: account.id.to_string(),
 			email: account.email,
 			password: account.password_hash,
+			inserted_at: account.inserted_at,
+			updated_at: account.updated_at,
 		})
 	}
 
 	static from_persistance(document: IAccountDocument): Account {
 		const account = {
-			id: new UniqueId(document._id),
+			id: new UniqueId(document.id),
 			email: Email.create({ email: document.email }).get_val(),
 			password: Hash.create({ hash: document.password }).get_val(),
 			inserted_at: document.inserted_at,

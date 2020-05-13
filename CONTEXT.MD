@@ -42,8 +42,11 @@
 ### Fields
 
 - Account
-- Watches
+- Subscriptions
   - Geofences
+    - Day of week
+    - From
+    - To
 
 ### Commands
 

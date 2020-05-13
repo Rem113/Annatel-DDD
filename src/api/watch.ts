@@ -1,13 +1,12 @@
 import { container } from "tsyringe"
 import { Router } from "express"
 import { WatchService } from "../domain/watch/watch_service"
-import auth from "./middlewares/auth"
 import {
 	InvalidWatchDataFailure,
 	NoLocationDataFailure,
 } from "../domain/watch/watch_failures"
 import { Serial } from "../domain/watch/serial.vo"
-import { MessageType, Message } from "../domain/watch/message.vo"
+import { MessageType, Message } from "../domain/watch/message.e"
 import Should from "../domain/core/should"
 
 export default () => {
@@ -39,8 +38,6 @@ export default () => {
 			})
 
 		const message = Message.create({
-			serial: serial.get_val(),
-			vendor,
 			type: message_type,
 			length,
 			payload,
@@ -62,7 +59,7 @@ export default () => {
 						throw new Error(`Unhandled case: ${err.constructor.name}`)
 				}
 			},
-			(_) => res.status(201).end()
+			() => res.status(201).end()
 		)
 	})
 

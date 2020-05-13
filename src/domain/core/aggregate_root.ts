@@ -1,4 +1,4 @@
-import { Entity, UniqueId } from "./entity"
+import { Entity } from "./entity"
 import { DomainEvent, DomainEventsDispatcher } from "./domain_events"
 
 export abstract class AggregateRoot<T> extends Entity<T> {
@@ -7,10 +7,6 @@ export abstract class AggregateRoot<T> extends Entity<T> {
 	constructor(props: T) {
 		super(props)
 		this.domain_events = []
-	}
-
-	get id(): UniqueId {
-		return this._id
 	}
 
 	get events(): DomainEvent[] {
@@ -36,7 +32,7 @@ export abstract class AggregateRoot<T> extends Entity<T> {
 			"[Domain Event Created]:",
 			this_class.constructor.name,
 			"#",
-			this._id.to_string(),
+			this.id.to_string(),
 			"==>",
 			domain_event_class.constructor.name
 		)

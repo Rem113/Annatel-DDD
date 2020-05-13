@@ -10,6 +10,10 @@ import {
 	WatchCreated,
 	LocationUpdated,
 } from "./domain/watch/watch_events"
+import {
+	SubscriptionCreated,
+	SubscriptionCancelled,
+} from "./domain/watch/parent_events"
 
 const main = async () => {
 	const app = express()
@@ -29,6 +33,12 @@ const main = async () => {
 		console.log(event)
 	)
 	DomainEventsDispatcher.register_handler(LocationUpdated.name, (event) =>
+		console.log(event)
+	)
+	DomainEventsDispatcher.register_handler(SubscriptionCreated.name, (event) =>
+		console.log(event)
+	)
+	DomainEventsDispatcher.register_handler(SubscriptionCancelled.name, (event) =>
 		console.log(event)
 	)
 }

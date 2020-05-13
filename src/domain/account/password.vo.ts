@@ -2,13 +2,14 @@ import { ValueObject, ValueObjectProps } from "../core/value_object"
 import Result from "../core/result"
 import bcrypt from "bcryptjs"
 import Should from "../core/should"
+import { Hash } from "./hash.vo"
 
 export interface PasswordProps extends ValueObjectProps {
 	password: string
 }
 
 export class Password extends ValueObject<PasswordProps> {
-	private _hash?: string
+	private _hash?: Hash
 
 	static create(props: PasswordProps): Result<Password> {
 		const error = Should.not_be_null_or_undefined([
@@ -27,9 +28,11 @@ export class Password extends ValueObject<PasswordProps> {
 	get hash(): string {
 		if (!this._hash) {
 			const salt = bcrypt.genSaltSync(10)
-			this._hash = bcrypt.hashSync(this.value.password, salt)
+			this._hash = new Hash({
+				hash: bcrypt.hashSync(this.value.password, salt),
+			})
 		}
 
-		return this._hash
+		return this._hash.hash
 	}
 }

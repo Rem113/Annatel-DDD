@@ -7,13 +7,13 @@ import {
 	NoLocationDataFailure,
 } from "./watch_failures"
 import { MessagePosted, WatchCreated, LocationUpdated } from "./watch_events"
-import { Message, MessageType } from "./message.vo"
+import { Message, MessageType } from "./message.e"
 import { Serial } from "./serial.vo"
 import { Watch } from "./watch.agg"
 import IWatchRepository from "./i_watch_repository"
 import Either from "../core/either"
-import { Unit } from "../core/result"
 import { Location } from "./location.vo"
+import { Maybe } from "../core/maybe"
 
 @injectable()
 export class WatchService {
@@ -27,7 +27,7 @@ export class WatchService {
 		message: Message,
 		serial: Serial,
 		vendor: string
-	): Promise<Either<PostMessageFailure, Unit>> {
+	): Promise<Maybe<PostMessageFailure>> {
 		// Find the addressed watch
 		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
 			serial,
@@ -46,7 +46,7 @@ export class WatchService {
 			})
 
 			if (result_watch.is_err())
-				return Either.left(new InvalidWatchDataFailure())
+				return Maybe.some(new InvalidWatchDataFailure())
 
 			watch = result_watch.get_val()
 
@@ -64,7 +64,7 @@ export class WatchService {
 		if (message.type === MessageType.UD)
 			watch.dispatch_event(new LocationUpdated(watch.id))
 
-		return Either.right(Unit)
+		return Maybe.none()
 	}
 
 	async read_messages_of(

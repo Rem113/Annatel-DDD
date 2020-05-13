@@ -24,15 +24,18 @@ export interface EntityProps {
 
 export abstract class Entity<T extends EntityProps> {
 	protected readonly props: T
-	protected readonly _id: UniqueId
 
 	constructor(props: T) {
 		this.props = props
-		this._id = props.id ?? new UniqueId()
+		this.props.id = props.id ?? new UniqueId()
+	}
+
+	get id(): UniqueId {
+		return this.props.id!
 	}
 
 	equals(other: Entity<T>): boolean {
 		if (other === undefined || other === null) return false
-		return this._id.equals(other._id)
+		return this.id.equals(other.id)
 	}
 }

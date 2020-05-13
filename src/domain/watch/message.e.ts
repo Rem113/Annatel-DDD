@@ -1,6 +1,6 @@
-import { ValueObjectProps, ValueObject } from "../core/value_object"
 import Result from "../core/result"
 import Should from "../core/should"
+import { EntityProps, Entity } from "../core/entity"
 
 export enum MessageType {
 	AL,
@@ -43,14 +43,14 @@ export enum MessageType {
 	WORKTIME,
 }
 
-export interface MessageProps extends ValueObjectProps {
+export interface MessageProps extends EntityProps {
 	type: MessageType
 	length: number
 	payload?: any
 	posted_at: Date
 }
 
-export class Message extends ValueObject<MessageProps> {
+export class Message extends Entity<MessageProps> {
 	static create(props: MessageProps): Result<Message> {
 		const error = Should.not_be_null_or_undefined([
 			{ name: "Type", value: props.type },
@@ -66,18 +66,18 @@ export class Message extends ValueObject<MessageProps> {
 	}
 
 	get length(): number {
-		return this.value.length
+		return this.props.length
 	}
 
 	get type(): MessageType {
-		return this.value.type
+		return this.props.type
 	}
 
 	get payload(): any {
-		return this.value.payload ?? {}
+		return this.props.payload ?? {}
 	}
 
 	get posted_at(): Date {
-		return this.value.posted_at
+		return this.props.posted_at
 	}
 }

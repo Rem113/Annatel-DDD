@@ -18,6 +18,7 @@ export class AccountRepository implements IAccountRepository {
 		const account = await this.account_model
 			.findOne({ email: email.email })
 			.exec()
+
 		if (account) return Maybe.some(AccountMapper.from_persistance(account))
 		return Maybe.none()
 	}

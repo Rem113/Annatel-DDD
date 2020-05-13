@@ -4,10 +4,8 @@ import { Email } from "./email.vo"
 import { injectable, inject } from "tsyringe"
 import { Password } from "./password.vo"
 import Either from "../core/either"
-import Result from "../core/result"
 import {
 	RegisterFailure,
-	InvalidInput,
 	EmailExists,
 	AccountCreationFailed,
 	LoginFailure,

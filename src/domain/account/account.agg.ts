@@ -26,6 +26,14 @@ export class Account extends AggregateRoot<AccountProps> {
 		return this.props.password.hash
 	}
 
+	get inserted_at(): Date | undefined {
+		return this.props.inserted_at
+	}
+
+	get updated_at(): Date | undefined {
+		return this.props.updated_at
+	}
+
 	generate_token(): string {
 		const payload = { id: this.id.to_string(), email: this.email }
 		return jwt.sign(payload, process.env.SECRET!, { expiresIn: 3600 })

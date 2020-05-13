@@ -47,9 +47,19 @@ export default () => {
 	})
 
 	router.post("/register", async (req, res) => {
-		const { email, password } = req.body
+		const email = Email.create({ email: req.body.email })
+		const password = Password.create({ password: req.body.password })
 
-		const result = await account_service.register(email, password)
+		if (!Result.are_ok([email, password]))
+			return res.status(400).json({
+				email: email.get_err(),
+				password: password.get_err(),
+			})
+
+		const result = await account_service.register(
+			email.get_val(),
+			password.get_val()
+		)
 
 		return result.fold(
 			(err) => {

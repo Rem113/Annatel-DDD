@@ -1,5 +1,3 @@
-export class Unit {}
-
 export default abstract class Result<T> {
 	private readonly value: T | string
 	private readonly is_valid: boolean
