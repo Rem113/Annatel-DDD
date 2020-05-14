@@ -4,22 +4,24 @@ import { ParentService } from "../domain/watch/parent_service"
 import auth from "./middlewares/auth"
 import { Serial } from "../domain/watch/serial.vo"
 import { Geofence } from "../domain/watch/geofence.vo"
-import {
-	TimeFrame,
-	DayOfWeek,
-	TimeFrameProps,
-} from "../domain/watch/time_frame.vo"
+import { TimeFrame, TimeFrameProps } from "../domain/watch/time_frame.vo"
 import Result from "../domain/core/result"
+import Should from "../domain/core/should"
 
 export default () => {
 	const router = Router()
 
 	const parent_service = container.resolve(ParentService)
 
-	// TODO: Validate req.body
 	router.put("/subscribe", auth, async (req, res) => {
 		const { account } = req
 		const { vendor } = req.body
+
+		const error = Should.not_be_null_or_undefined([
+			{ name: "Vendor", value: vendor },
+		])
+
+		if (error.has_some()) return res.status(400).json(error.get_val())
 
 		const serial = Serial.create({ serial: req.body.serial })
 
@@ -38,10 +40,15 @@ export default () => {
 		)
 	})
 
-	// TODO: Validate req.body
 	router.put("/unsubscribe", auth, async (req, res) => {
 		const { account } = req
 		const { vendor } = req.body
+
+		const error = Should.not_be_null_or_undefined([
+			{ name: "Vendor", value: vendor },
+		])
+
+		if (error.has_some()) return res.status(400).json(error.get_val())
 
 		const serial = Serial.create({ serial: req.body.serial })
 
@@ -63,6 +70,17 @@ export default () => {
 	router.put("/geofence", auth, async (req, res) => {
 		const { account } = req
 		const { vendor, latitude, longitude, radius, name, notification } = req.body
+
+		const error = Should.not_be_null_or_undefined([
+			{ name: "Vendor", value: vendor },
+			{ name: "Latitude", value: latitude },
+			{ name: "Longitude", value: longitude },
+			{ name: "Radius", value: radius },
+			{ name: "Name", value: name },
+			{ name: "Notification", value: notification },
+		])
+
+		if (error.has_some()) return res.status(400).json(error.get_val())
 
 		const serial = Serial.create({ serial: req.body.serial })
 
@@ -110,6 +128,12 @@ export default () => {
 	router.get("/geofence", auth, async (req, res) => {
 		const { account } = req
 		const { vendor } = req.body
+
+		const error = Should.not_be_null_or_undefined([
+			{ name: "Vendor", value: vendor },
+		])
+
+		if (error.has_some()) return res.status(400).json(error.get_val())
 
 		const serial = Serial.create({ serial: req.body.serial })
 
