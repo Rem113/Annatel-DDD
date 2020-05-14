@@ -26,7 +26,7 @@ export default () => {
 			{ name: "Length", value: length },
 		])
 
-		if (error.has_some()) return res.status(400).json(error)
+		if (error.has_some()) return res.status(400).json(error.get_val())
 
 		const message_type = MessageType[type as keyof typeof MessageType]
 
