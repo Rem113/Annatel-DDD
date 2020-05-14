@@ -19,6 +19,12 @@ export class Subscription extends Entity<SubscriptionProps> {
 		return Result.ok(new Subscription(props))
 	}
 
+	define_geofence(geofence: Geofence): boolean {
+		if (this.geofences.some((g) => g.equals(geofence))) return false
+		this.props.geofences.unshift(geofence)
+		return true
+	}
+
 	get watch(): UniqueId {
 		return this.props.watch
 	}

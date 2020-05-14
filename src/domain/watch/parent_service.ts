@@ -5,16 +5,15 @@ import {
 	InvalidWatchDataFailure,
 	UnsubscribeFromFailure,
 	ParentNotFoundFailure,
+	DefineGeofenceForFailure,
 } from "./parent_failures"
 import { Serial } from "./serial.vo"
 import IWatchRepository from "./i_watch_repository"
-import { Watch } from "./watch.agg"
-import { WatchCreated } from "./watch_events"
 import { UniqueId } from "../core/entity"
 import { Parent } from "./parent.agg"
-import { Subscription } from "./subscription.e"
 import { injectable, inject } from "tsyringe"
 import { SubscriptionCreated, SubscriptionCancelled } from "./parent_events"
+import { Geofence } from "./geofence.vo"
 
 @injectable()
 export class ParentService {
@@ -93,6 +92,46 @@ export class ParentService {
 			parent.dispatch_event(new SubscriptionCancelled(parent.id))
 
 			await this.parent_repo.save(parent)
+		}
+
+		return Maybe.none()
+	}
+
+	async define_geofence_for(
+		serial: Serial,
+		vendor: string,
+		geofence: Geofence,
+		account: UniqueId
+	): Promise<Maybe<DefineGeofenceForFailure>> {
+		// Find the watch
+		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
+			serial,
+			vendor
+		)
+
+		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
+
+		const watch = maybe_watch.get_val()
+
+		const maybe_parent = await this.parent_repo.with_account(account)
+
+		let parent: Parent
+
+		if (maybe_parent.has_some()) parent = maybe_parent.get_val()
+		else {
+			parent = Parent.create({
+				account,
+				subscriptions: [],
+			}).get_val()
+		}
+
+		const defined = parent.define_geofence_for(watch.id, geofence)
+
+		console.log(defined)
+
+		if (defined) {
+			// Fire an event (eventually (lol))
+			this.parent_repo.save(parent)
 		}
 
 		return Maybe.none()
