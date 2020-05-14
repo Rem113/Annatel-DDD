@@ -13,7 +13,12 @@ import { Watch } from "./watch.agg"
 import IWatchRepository from "./i_watch_repository"
 import Either from "../core/either"
 import { Maybe } from "../core/maybe"
-import { ReadMessagesOfDTO, GetLocationOfDTO } from "./watch_dtos"
+import {
+	ReadMessagesOfDTO,
+	GetLocationOfDTO,
+	build_get_location_of_dto,
+	build_read_messages_of_dto,
+} from "./watch_dtos"
 
 @injectable()
 export class WatchService {
@@ -78,14 +83,9 @@ export class WatchService {
 		)
 
 		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
-		return Either.right({
-			messages: maybe_watch.get_val().messages.map((message) => ({
-				type:
-					MessageType[(message.type as unknown) as keyof typeof MessageType],
-				posted_at: message.posted_at,
-				payload: message.payload,
-			})),
-		})
+		return Either.right(
+			build_read_messages_of_dto(maybe_watch.get_val().messages)
+		)
 	}
 
 	async get_location_of(
@@ -105,12 +105,6 @@ export class WatchService {
 		if (location_update === null)
 			return Either.left(new NoLocationDataFailure())
 
-		return Either.right({
-			location: {
-				latitude: location_update.latitude,
-				longitude: location_update.longitude,
-				last_update: location_update.last_update,
-			},
-		})
+		return Either.right(build_get_location_of_dto(location_update))
 	}
 }

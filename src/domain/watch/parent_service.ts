@@ -6,6 +6,7 @@ import {
 	UnsubscribeFromFailure,
 	ParentNotFoundFailure,
 	DefineGeofenceForFailure,
+	GeofencesForFailure,
 } from "./parent_failures"
 import { Serial } from "./serial.vo"
 import IWatchRepository from "./i_watch_repository"
@@ -14,6 +15,8 @@ import { Parent } from "./parent.agg"
 import { injectable, inject } from "tsyringe"
 import { SubscriptionCreated, SubscriptionCancelled } from "./parent_events"
 import { Geofence } from "./geofence.vo"
+import Either from "../core/either"
+import { GeofencesForDTO, build_geofences_for_dto } from "./parent_dtos"
 
 @injectable()
 export class ParentService {
@@ -135,5 +138,28 @@ export class ParentService {
 		}
 
 		return Maybe.none()
+	}
+
+	async geofences_for(
+		serial: Serial,
+		vendor: string,
+		account: UniqueId
+	): Promise<Either<GeofencesForFailure, GeofencesForDTO>> {
+		// Find the watch
+		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
+			serial,
+			vendor
+		)
+
+		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
+
+		const watch = maybe_watch.get_val()
+
+		const maybe_parent = await this.parent_repo.with_account(account)
+
+		if (maybe_parent.is_none()) return Either.left(new ParentNotFoundFailure())
+		const parent = maybe_parent.get_val()
+
+		return Either.right(build_geofences_for_dto(parent.geofences_for(watch.id)))
 	}
 }

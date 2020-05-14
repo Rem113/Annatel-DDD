@@ -71,4 +71,10 @@ export class Parent extends AggregateRoot<ParentProps> {
 
 		return this.props.subscriptions.length !== length
 	}
+
+	geofences_for(watch: UniqueId): Geofence[] {
+		return (
+			this.subscriptions.find((s) => s.watch.equals(watch))?.geofences ?? []
+		)
+	}
 }

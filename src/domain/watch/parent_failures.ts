@@ -7,6 +7,9 @@ export type UnsubscribeFromFailure =
 export type DefineGeofenceForFailure =
 	| InvalidWatchDataFailure
 	| ParentNotFoundFailure
+export type GeofencesForFailure =
+	| InvalidWatchDataFailure
+	| ParentNotFoundFailure
 
 export class InvalidWatchDataFailure extends Failure {
 	constructor() {

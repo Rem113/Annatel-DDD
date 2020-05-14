@@ -3,7 +3,7 @@ import { DomainEventsDispatcher } from "../../domain/core/domain_events"
 import { MessageType } from "../../domain/watch/message.e"
 import { UniqueId } from "../../domain/core/entity"
 
-export interface IMessage extends Document {
+export interface IMessageDocument extends Document {
 	length: number
 	type: MessageType
 	payload?: any
