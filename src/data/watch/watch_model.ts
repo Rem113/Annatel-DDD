@@ -13,7 +13,7 @@ export interface IMessageDocument extends Document {
 export interface IWatchDocument extends Document {
 	serial: string
 	vendor: string
-	messages: IMessage[]
+	messages: IMessageDocument[]
 	inserted_at?: Date
 	updated_at?: Date
 }

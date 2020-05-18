@@ -18,14 +18,14 @@ export interface IGeofence {
 	radius: number
 }
 
-export interface ISubscription extends Document {
+export interface ISubscriptionDocument extends Document {
 	watch: string
 	geofences: IGeofence[]
 }
 
 export interface IParentDocument extends Document {
 	account: string
-	subscriptions: ISubscription[]
+	subscriptions: ISubscriptionDocument[]
 	inserted_at?: Date
 	updated_at?: Date
 }
@@ -42,13 +42,13 @@ const TimeFrameSchema = new Schema(
 			type: Number,
 			required: true,
 			min: 0,
-			max: 86400,
+			max: 2359,
 		},
 		to: {
 			type: Number,
 			required: true,
 			min: 0,
-			max: 86400,
+			max: 2359,
 		},
 	},
 	{ _id: false }

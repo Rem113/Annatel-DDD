@@ -56,5 +56,4 @@
 
 ### Queries
 
-- GeofencesFor(Watch) -> Geofences
-- LinkedWatches() -> Watches
+- Subscriptions() -> Subscriptions

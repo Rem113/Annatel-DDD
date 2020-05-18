@@ -125,25 +125,10 @@ export default () => {
 		)
 	})
 
-	router.get("/geofence", auth, async (req, res) => {
+	router.get("/subscription", auth, async (req, res) => {
 		const { account } = req
-		const { vendor } = req.body
 
-		const error = Should.not_be_null_or_undefined([
-			{ name: "Vendor", value: vendor },
-		])
-
-		if (error.has_some()) return res.status(400).json(error.get_val())
-
-		const serial = Serial.create({ serial: req.body.serial })
-
-		if (serial.is_err()) return res.status(400).json(serial.get_err())
-
-		const result = await parent_service.geofences_for(
-			serial.get_val(),
-			vendor,
-			account!.id
-		)
+		const result = await parent_service.subscriptions(account!.id)
 
 		return result.fold(
 			(err) => res.status(400).json(err.unwrap()),

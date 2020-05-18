@@ -28,9 +28,9 @@ export class TimeFrame extends ValueObject<TimeFrameProps> {
 
 		if (error.has_some()) return Result.fail(error.get_val() as string)
 
-		if (props.from < 0 || props.from > 86400)
+		if (props.from < 0 || props.from > 2359)
 			return Result.fail("From should range between 00:00 and 23:59")
-		if (props.to < 0 || props.to > 86400)
+		if (props.to < 0 || props.to > 2359)
 			return Result.fail("To should range between 00:00 and 23:59")
 
 		return Result.ok(new TimeFrame(props))
