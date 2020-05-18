@@ -134,7 +134,7 @@ export class ParentService {
 		console.log(defined)
 
 		if (defined) {
-			// Fire an event (eventually (lol))
+			// Fire an event
 			this.parent_repo.save(parent)
 		}
 
