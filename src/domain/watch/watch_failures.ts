@@ -7,8 +7,8 @@ export type GetLocationOfFailure =
 	| NoLocationDataFailure
 
 export class InvalidWatchDataFailure extends Failure {
-	constructor() {
-		super("Invalid watch data")
+	constructor(message?: string) {
+		super(message ?? "Invalid watch data")
 	}
 }
 

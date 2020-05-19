@@ -57,7 +57,7 @@ export class ParentMapper {
 												day_of_week: time_frame.day_of_week,
 												from: time_frame.from,
 												to: time_frame.to,
-											}).get_val()
+											})
 										),
 									],
 									latitude: geofence.latitude,
@@ -65,14 +65,14 @@ export class ParentMapper {
 									name: geofence.name,
 									notification: geofence.notification,
 									radius: geofence.radius,
-								}).get_val()
+								})
 							),
 						],
-					}).get_val()
+					})
 				),
 			],
 		}
 
-		return Parent.create(parent).get_val()
+		return Parent.create(parent)
 	}
 }

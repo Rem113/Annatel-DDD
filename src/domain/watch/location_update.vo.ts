@@ -1,5 +1,4 @@
 import { ValueObjectProps, ValueObject } from "../core/value_object"
-import Result from "../core/result"
 import Should from "../core/should"
 
 export interface LocationUpdateProps extends ValueObjectProps {
@@ -9,7 +8,7 @@ export interface LocationUpdateProps extends ValueObjectProps {
 }
 
 export class LocationUpdate extends ValueObject<LocationUpdateProps> {
-	static create(props: LocationUpdateProps): Result<LocationUpdate> {
+	static create(props: LocationUpdateProps): LocationUpdate {
 		const error = Should.not_be_null_or_undefined([
 			{
 				name: "Longitude",
@@ -25,9 +24,9 @@ export class LocationUpdate extends ValueObject<LocationUpdateProps> {
 			},
 		])
 
-		if (error.has_some()) return Result.fail(error.get_val() as string)
+		if (error.has_some()) throw error.get_val()
 
-		return Result.ok(new LocationUpdate(props))
+		return new LocationUpdate(props)
 	}
 
 	get latitude(): number {

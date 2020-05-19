@@ -27,7 +27,7 @@ export class WatchMapper {
 	static from_persistance(document: IWatchDocument): Watch {
 		const watch = {
 			id: new UniqueId(document._id),
-			serial: Serial.create({ serial: document.serial }).get_val(),
+			serial: Serial.create({ serial: document.serial }),
 			vendor: document.vendor,
 			messages: [
 				...document.messages.map((message) =>
@@ -40,13 +40,13 @@ export class WatchMapper {
 						length: message.length,
 						payload: message.payload,
 						posted_at: message.posted_at,
-					}).get_val()
+					})
 				),
 			],
 			inserted_at: document.inserted_at,
 			updated_at: document.updated_at,
 		}
 
-		return Watch.create(watch).get_val()
+		return Watch.create(watch)
 	}
 }

@@ -4,37 +4,24 @@ import { AccountService } from "../domain/account/account_service"
 import {
 	EmailExists,
 	AccountCreationFailed,
-	InvalidPassword,
 	EmailDoesNotExist,
+	InvalidInput,
 } from "../domain/account/account_failures"
-import { Email } from "../domain/account/email.vo"
-import { Password } from "../domain/account/password.vo"
-import Result from "../domain/core/result"
 
 export default () => {
 	const router = Router()
 
 	const account_service = container.resolve(AccountService)
 
-	router.get("/login", async (req, res) => {
-		const email = Email.create({ email: req.body.email })
-		const password = Password.create({ password: req.body.password })
+	router.get("/token", async (req, res) => {
+		const { email, password } = req.body
 
-		if (!Result.are_ok([email, password]))
-			return res.status(400).json({
-				email: email.get_err(),
-				password: password.get_err(),
-			})
-
-		const result = await account_service.login(
-			email.get_val(),
-			password.get_val()
-		)
+		const result = await account_service.login(email, password)
 
 		return result.fold(
 			(err) => {
 				switch (err.constructor) {
-					case InvalidPassword:
+					case InvalidInput:
 						return res.status(400).json(err.unwrap())
 					case EmailDoesNotExist:
 						return res.status(401).json(err.unwrap())
@@ -46,20 +33,10 @@ export default () => {
 		)
 	})
 
-	router.post("/register", async (req, res) => {
-		const email = Email.create({ email: req.body.email })
-		const password = Password.create({ password: req.body.password })
+	router.post("/", async (req, res) => {
+		const { email, password } = req.body
 
-		if (!Result.are_ok([email, password]))
-			return res.status(400).json({
-				email: email.get_err(),
-				password: password.get_err(),
-			})
-
-		const result = await account_service.register(
-			email.get_val(),
-			password.get_val()
-		)
+		const result = await account_service.register(email, password)
 
 		return result.fold(
 			(err) => {

@@ -11,14 +11,14 @@ export interface PasswordProps extends ValueObjectProps {
 export class Password extends ValueObject<PasswordProps> {
 	private _hash?: Hash
 
-	static create(props: PasswordProps): Result<Password> {
+	static create(props: PasswordProps): Password {
 		const error = Should.not_be_null_or_undefined([
 			{ name: "Password", value: props.password },
 		])
-		if (error.has_some()) return Result.fail(error.get_val() as string)
+		if (error.has_some()) throw error.get_val()
 
-		if (props.password.length < 8) return Result.fail("Password is too short")
-		return Result.ok(new Password(props))
+		if (props.password.length < 8) throw "Password is too short"
+		return new Password(props)
 	}
 
 	compare_hash(hash: string): boolean {

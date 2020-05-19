@@ -1,5 +1,4 @@
 import { ValueObjectProps, ValueObject } from "../core/value_object"
-import Result from "../core/result"
 import Should from "../core/should"
 
 export enum DayOfWeek {
@@ -19,21 +18,21 @@ export interface TimeFrameProps extends ValueObjectProps {
 }
 
 export class TimeFrame extends ValueObject<TimeFrameProps> {
-	static create(props: TimeFrameProps): Result<TimeFrame> {
+	static create(props: TimeFrameProps): TimeFrame {
 		const error = Should.not_be_null_or_undefined([
 			{ name: "Day of week", value: props.day_of_week },
 			{ name: "From", value: props.from },
 			{ name: "To", value: props.to },
 		])
 
-		if (error.has_some()) return Result.fail(error.get_val() as string)
+		if (error.has_some()) throw error.get_val()
 
 		if (props.from < 0 || props.from > 2359)
-			return Result.fail("From should range between 00:00 and 23:59")
+			throw "From should range between 00:00 and 23:59"
 		if (props.to < 0 || props.to > 2359)
-			return Result.fail("To should range between 00:00 and 23:59")
+			throw "To should range between 00:00 and 23:59"
 
-		return Result.ok(new TimeFrame(props))
+		return new TimeFrame(props)
 	}
 
 	get day_of_week(): DayOfWeek {

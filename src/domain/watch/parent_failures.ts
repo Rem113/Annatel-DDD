@@ -14,8 +14,8 @@ export type GeofencesForFailure =
 export type SubscriptionsFailure = ParentNotFoundFailure
 
 export class InvalidWatchDataFailure extends Failure {
-	constructor() {
-		super("The watch does not exist")
+	constructor(message?: string) {
+		super(message ?? "The watch does not exist")
 	}
 }
 

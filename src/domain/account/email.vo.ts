@@ -1,5 +1,4 @@
 import { ValueObjectProps, ValueObject } from "../core/value_object"
-import Result from "../core/result"
 import Should from "../core/should"
 
 export interface EmailProps extends ValueObjectProps {
@@ -11,17 +10,16 @@ export class Email extends ValueObject<EmailProps> {
 		/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
 	)
 
-	static create(props: EmailProps): Result<Email> {
+	static create(props: EmailProps): Email {
 		const error = Should.not_be_null_or_undefined([
 			{ name: "email", value: props.email },
 		])
 
-		if (error.has_some()) return Result.fail(error.get_val() as string)
+		if (error.has_some()) throw error.get_val()
 
-		if (!Email.email_regex.test(props.email))
-			return Result.fail("Not a valid email")
+		if (!Email.email_regex.test(props.email)) throw "Not a valid email"
 
-		return Result.ok(new Email(props))
+		return new Email(props)
 	}
 
 	get email(): string {

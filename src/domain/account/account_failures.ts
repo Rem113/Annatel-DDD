@@ -1,7 +1,7 @@
 import Failure from "../core/failure"
 
 export type RegisterFailure = EmailExists | AccountCreationFailed
-export type LoginFailure = EmailDoesNotExist | InvalidPassword
+export type LoginFailure = EmailDoesNotExist | InvalidInput
 
 export class EmailDoesNotExist extends Failure {
 	constructor() {
@@ -9,9 +9,9 @@ export class EmailDoesNotExist extends Failure {
 	}
 }
 
-export class InvalidPassword extends Failure {
-	constructor() {
-		super("Password is invalid")
+export class InvalidInput extends Failure {
+	constructor(message: string) {
+		super(message)
 	}
 }
 

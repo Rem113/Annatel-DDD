@@ -1,8 +1,6 @@
 import { EntityProps, UniqueId } from "../core/entity"
 import { AggregateRoot } from "../core/aggregate_root"
-import Result from "../core/result"
 import { Subscription } from "./subscription.e"
-import { Maybe } from "../core/maybe"
 import { Geofence } from "./geofence.vo"
 
 export interface ParentProps extends EntityProps {
@@ -13,8 +11,8 @@ export interface ParentProps extends EntityProps {
 }
 
 export class Parent extends AggregateRoot<ParentProps> {
-	static create(props: ParentProps): Result<Parent> {
-		return Result.ok(new Parent(props))
+	static create(props: ParentProps): Parent {
+		return new Parent(props)
 	}
 
 	define_geofence_for(watch: UniqueId, geofence: Geofence): boolean {
@@ -54,7 +52,7 @@ export class Parent extends AggregateRoot<ParentProps> {
 			Subscription.create({
 				watch,
 				geofences: [],
-			}).get_val()
+			})
 		)
 
 		return true

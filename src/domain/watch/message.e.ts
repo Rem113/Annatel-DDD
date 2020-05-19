@@ -1,4 +1,3 @@
-import Result from "../core/result"
 import Should from "../core/should"
 import { EntityProps, Entity } from "../core/entity"
 
@@ -51,18 +50,18 @@ export interface MessageProps extends EntityProps {
 }
 
 export class Message extends Entity<MessageProps> {
-	static create(props: MessageProps): Result<Message> {
+	static create(props: MessageProps): Message {
 		const error = Should.not_be_null_or_undefined([
 			{ name: "Type", value: props.type },
 			{ name: "Length", value: props.length },
 		])
 
-		if (error.has_some()) return Result.fail(error.get_val() as string)
+		if (error.has_some()) throw error.get_val()
 
 		if (!Object.values(MessageType).includes(props.type))
-			return Result.fail("Please enter a valid message type")
+			throw "Please enter a valid message type"
 
-		return Result.ok(new Message(props))
+		return new Message(props)
 	}
 
 	get length(): number {

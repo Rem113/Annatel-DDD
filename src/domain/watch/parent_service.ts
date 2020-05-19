@@ -6,16 +6,14 @@ import {
 	UnsubscribeFromFailure,
 	ParentNotFoundFailure,
 	DefineGeofenceForFailure,
-	GeofencesForFailure,
 	SubscriptionsFailure,
 } from "./parent_failures"
-import { Serial } from "./serial.vo"
 import IWatchRepository from "./i_watch_repository"
 import { UniqueId } from "../core/entity"
 import { Parent } from "./parent.agg"
 import { injectable, inject } from "tsyringe"
 import { SubscriptionCreated, SubscriptionCancelled } from "./parent_events"
-import { Geofence } from "./geofence.vo"
+import { Geofence, GeofenceProps } from "./geofence.vo"
 import Either from "../core/either"
 import { build_subscriptions_dto, SubscriptionsDTO } from "./parent_dtos"
 
@@ -52,7 +50,7 @@ export class ParentService {
 			parent = Parent.create({
 				account,
 				subscriptions: [],
-			}).get_val()
+			})
 		}
 
 		const added = parent.subscribe_to(watch.id)
@@ -95,7 +93,7 @@ export class ParentService {
 
 	async define_geofence_for(
 		watch_id: UniqueId,
-		geofence: Geofence,
+		geofence_props: GeofenceProps,
 		account: UniqueId
 	): Promise<Maybe<DefineGeofenceForFailure>> {
 		// Find the watch
@@ -114,12 +112,18 @@ export class ParentService {
 			parent = Parent.create({
 				account,
 				subscriptions: [],
-			}).get_val()
+			})
+		}
+
+		let geofence
+
+		try {
+			geofence = Geofence.create(geofence_props)
+		} catch (err) {
+			return Maybe.some(new InvalidWatchDataFailure(err))
 		}
 
 		const defined = parent.define_geofence_for(watch.id, geofence)
-
-		console.log(defined)
 
 		if (defined) {
 			// Fire an event

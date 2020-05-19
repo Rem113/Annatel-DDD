@@ -1,6 +1,5 @@
 import { AggregateRoot } from "../core/aggregate_root"
 import { EntityProps } from "../core/entity"
-import Result from "../core/result"
 import { Message, MessageType } from "./message.e"
 import { Serial } from "./serial.vo"
 import Should from "../core/should"
@@ -15,7 +14,7 @@ export interface WatchProps extends EntityProps {
 }
 
 export class Watch extends AggregateRoot<WatchProps> {
-	static create(props: WatchProps): Result<Watch> {
+	static create(props: WatchProps): Watch {
 		const error = Should.not_be_null_or_undefined([
 			{
 				name: "Vendor",
@@ -23,9 +22,9 @@ export class Watch extends AggregateRoot<WatchProps> {
 			},
 			{ name: "Serial", value: props.serial },
 		])
-		if (error.has_some()) return Result.fail(error.get_val() as string)
+		if (error.has_some()) throw error.get_val()
 
-		return Result.ok(new Watch(props))
+		return new Watch(props)
 	}
 
 	get location(): LocationUpdate | null {
@@ -42,7 +41,7 @@ export class Watch extends AggregateRoot<WatchProps> {
 			longitude: last_update_message.payload.longitude,
 			latitude: last_update_message.payload.latitude,
 			last_update: last_update_message.posted_at,
-		}).get_val()
+		})
 	}
 
 	get serial(): string {

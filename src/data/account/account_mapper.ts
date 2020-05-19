@@ -18,8 +18,8 @@ export class AccountMapper {
 	static from_persistance(document: IAccountDocument): Account {
 		const account = {
 			id: new UniqueId(document.id),
-			email: Email.create({ email: document.email }).get_val(),
-			password: Hash.create({ hash: document.password }).get_val(),
+			email: Email.create({ email: document.email }),
+			password: Hash.create({ hash: document.password }),
 			inserted_at: document.inserted_at,
 			updated_at: document.updated_at,
 		}

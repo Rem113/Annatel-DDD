@@ -7,8 +7,8 @@ import {
 	NoLocationDataFailure,
 } from "./watch_failures"
 import { MessagePosted, WatchCreated, LocationUpdated } from "./watch_events"
-import { Message, MessageType } from "./message.e"
-import { Serial } from "./serial.vo"
+import { Message, MessageType, MessageProps } from "./message.e"
+import { Serial, SerialProps } from "./serial.vo"
 import { Watch } from "./watch.agg"
 import IWatchRepository from "./i_watch_repository"
 import Either from "../core/either"
@@ -30,14 +30,22 @@ export class WatchService {
 	}
 
 	async post_message(
-		message: Message,
-		serial: Serial,
-		vendor: string
+		watch_props: { vendor: string; serial: string },
+		message_props: MessageProps
 	): Promise<Maybe<PostMessageFailure>> {
+		let serial, message
+
+		try {
+			serial = Serial.create({ serial: watch_props.serial })
+			message = Message.create(message_props)
+		} catch (err) {
+			return Maybe.some(new InvalidWatchDataFailure(err))
+		}
+
 		// Find the addressed watch
 		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
 			serial,
-			vendor
+			watch_props.serial
 		)
 
 		let watch: Watch
@@ -45,16 +53,15 @@ export class WatchService {
 		if (maybe_watch.has_some()) watch = maybe_watch.get_val()
 		else {
 			// If it does not exist, create it
-			const result_watch = Watch.create({
-				serial,
-				vendor,
-				messages: [],
-			})
-
-			if (result_watch.is_err())
-				return Maybe.some(new InvalidWatchDataFailure())
-
-			watch = result_watch.get_val()
+			try {
+				watch = Watch.create({
+					serial,
+					vendor: watch_props.serial,
+					messages: [],
+				})
+			} catch (err) {
+				return Maybe.some(new InvalidWatchDataFailure(err))
+			}
 
 			watch.dispatch_event(new WatchCreated(watch.id))
 		}

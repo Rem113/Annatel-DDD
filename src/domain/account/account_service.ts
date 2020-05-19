@@ -10,7 +10,7 @@ import {
 	AccountCreationFailed,
 	LoginFailure,
 	EmailDoesNotExist,
-	InvalidPassword,
+	InvalidInput,
 } from "./account_failures"
 import { DomainEventsDispatcher } from "../core/domain_events"
 import { AccountCreated, AccountLogin } from "./account_events"
@@ -25,9 +25,18 @@ export class AccountService {
 	}
 
 	async register(
-		email: Email,
-		password: Password
+		email_val: string,
+		password_val: string
 	): Promise<Either<RegisterFailure, RegisterDTO>> {
+		let email, password
+
+		try {
+			email = Email.create({ email: email_val })
+			password = Password.create({ password: password_val })
+		} catch (err) {
+			return Either.left(new InvalidInput(err))
+		}
+
 		// Checks that email is available
 		const previous_account = await this.account_repo.with_email(email)
 
@@ -54,9 +63,18 @@ export class AccountService {
 	}
 
 	async login(
-		email: Email,
-		password: Password
+		email_val: string,
+		password_val: string
 	): Promise<Either<LoginFailure, LoginDTO>> {
+		let email, password
+
+		try {
+			email = Email.create({ email: email_val })
+			password = Password.create({ password: password_val })
+		} catch (err) {
+			return Either.left(new InvalidInput(err))
+		}
+
 		// Check that the email exists
 		const maybe_account = await this.account_repo.with_email(email)
 
@@ -67,7 +85,8 @@ export class AccountService {
 		// Compare password hashes
 		const password_is_valid = password.compare_hash(account.password_hash)
 
-		if (!password_is_valid) return Either.left(new InvalidPassword())
+		if (!password_is_valid)
+			return Either.left(new InvalidInput("Password is invalid"))
 
 		account.dispatch_event(new AccountLogin(account.id))
 		DomainEventsDispatcher.dispatch_events_for_aggregate(account.id)
