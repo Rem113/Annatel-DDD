@@ -19,6 +19,7 @@ import {
 	build_get_location_of_dto,
 	build_read_messages_of_dto,
 } from "./watch_dtos"
+import { UniqueId } from "../core/entity"
 
 @injectable()
 export class WatchService {
@@ -73,14 +74,10 @@ export class WatchService {
 	}
 
 	async read_messages_of(
-		serial: Serial,
-		vendor: string
+		watch: UniqueId
 	): Promise<Either<ReadMessagesOfFailure, ReadMessagesOfDTO>> {
 		// Get the watch
-		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
-			serial,
-			vendor
-		)
+		const maybe_watch = await this.watch_repo.with_id(watch)
 
 		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
 		return Either.right(
@@ -89,14 +86,10 @@ export class WatchService {
 	}
 
 	async get_location_of(
-		serial: Serial,
-		vendor: string
+		watch: UniqueId
 	): Promise<Either<GetLocationOfFailure, GetLocationOfDTO>> {
 		// Get the watch
-		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
-			serial,
-			vendor
-		)
+		const maybe_watch = await this.watch_repo.with_id(watch)
 
 		if (maybe_watch.is_none()) return Either.left(new InvalidWatchDataFailure())
 

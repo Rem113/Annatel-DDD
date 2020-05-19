@@ -33,15 +33,11 @@ export class ParentService {
 	}
 
 	async subscribe_to(
-		serial: Serial,
-		vendor: string,
+		watch_id: UniqueId,
 		account: UniqueId
 	): Promise<Maybe<SubscribeToFailure>> {
 		// Find the watch
-		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
-			serial,
-			vendor
-		)
+		const maybe_watch = await this.watch_repo.with_id(watch_id)
 
 		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 
@@ -70,15 +66,11 @@ export class ParentService {
 	}
 
 	async unsubscribe_from(
-		serial: Serial,
-		vendor: string,
+		watch_id: UniqueId,
 		account: UniqueId
 	): Promise<Maybe<UnsubscribeFromFailure>> {
 		// Find the watch
-		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
-			serial,
-			vendor
-		)
+		const maybe_watch = await this.watch_repo.with_id(watch_id)
 
 		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 
@@ -102,16 +94,12 @@ export class ParentService {
 	}
 
 	async define_geofence_for(
-		serial: Serial,
-		vendor: string,
+		watch_id: UniqueId,
 		geofence: Geofence,
 		account: UniqueId
 	): Promise<Maybe<DefineGeofenceForFailure>> {
 		// Find the watch
-		const maybe_watch = await this.watch_repo.with_serial_and_vendor(
-			serial,
-			vendor
-		)
+		const maybe_watch = await this.watch_repo.with_id(watch_id)
 
 		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 

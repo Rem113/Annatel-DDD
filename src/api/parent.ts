@@ -2,36 +2,22 @@ import { Router } from "express"
 import { container } from "tsyringe"
 import { ParentService } from "../domain/watch/parent_service"
 import auth from "./middlewares/auth"
-import { Serial } from "../domain/watch/serial.vo"
 import { Geofence } from "../domain/watch/geofence.vo"
 import { TimeFrame, TimeFrameProps } from "../domain/watch/time_frame.vo"
 import Result from "../domain/core/result"
 import Should from "../domain/core/should"
+import { UniqueId } from "../domain/core/entity"
 
 export default () => {
 	const router = Router()
 
 	const parent_service = container.resolve(ParentService)
 
-	router.put("/subscribe", auth, async (req, res) => {
+	router.put("/watch/:id/subscribe", auth, async (req, res) => {
+		const id = new UniqueId(req.params.id)
 		const { account } = req
-		const { vendor } = req.body
 
-		const error = Should.not_be_null_or_undefined([
-			{ name: "Vendor", value: vendor },
-		])
-
-		if (error.has_some()) return res.status(400).json(error.get_val())
-
-		const serial = Serial.create({ serial: req.body.serial })
-
-		if (serial.is_err()) return res.status(400).json(serial.get_err())
-
-		const maybe = await parent_service.subscribe_to(
-			serial.get_val(),
-			vendor,
-			account!.id
-		)
+		const maybe = await parent_service.subscribe_to(id, account!.id)
 
 		// TODO: Handle different failures
 		return maybe.fold(
@@ -40,25 +26,11 @@ export default () => {
 		)
 	})
 
-	router.put("/unsubscribe", auth, async (req, res) => {
+	router.put("/watch/:id/unsubscribe", auth, async (req, res) => {
+		const id = new UniqueId(req.params.id)
 		const { account } = req
-		const { vendor } = req.body
 
-		const error = Should.not_be_null_or_undefined([
-			{ name: "Vendor", value: vendor },
-		])
-
-		if (error.has_some()) return res.status(400).json(error.get_val())
-
-		const serial = Serial.create({ serial: req.body.serial })
-
-		if (serial.is_err()) return res.status(400).json(serial.get_err())
-
-		const maybe = await parent_service.unsubscribe_from(
-			serial.get_val(),
-			vendor,
-			account!.id
-		)
+		const maybe = await parent_service.unsubscribe_from(id, account!.id)
 
 		// TODO: Handle different failures
 		return maybe.fold(
@@ -67,12 +39,12 @@ export default () => {
 		)
 	})
 
-	router.put("/geofence", auth, async (req, res) => {
+	router.put("/watch/:id/geofence", auth, async (req, res) => {
+		const id = new UniqueId(req.params.id)
 		const { account } = req
-		const { vendor, latitude, longitude, radius, name, notification } = req.body
+		const { latitude, longitude, radius, name, notification } = req.body
 
 		const error = Should.not_be_null_or_undefined([
-			{ name: "Vendor", value: vendor },
 			{ name: "Latitude", value: latitude },
 			{ name: "Longitude", value: longitude },
 			{ name: "Radius", value: radius },
@@ -81,10 +53,6 @@ export default () => {
 		])
 
 		if (error.has_some()) return res.status(400).json(error.get_val())
-
-		const serial = Serial.create({ serial: req.body.serial })
-
-		if (serial.is_err()) return res.status(400).json(serial.get_err())
 
 		const time_frames = req.body.time_frames.map((time_frame: TimeFrameProps) =>
 			TimeFrame.create(time_frame)
@@ -113,8 +81,7 @@ export default () => {
 		if (geofence.is_err()) return res.status(400).json(geofence.get_err())
 
 		const maybe = await parent_service.define_geofence_for(
-			serial.get_val(),
-			vendor,
+			id,
 			geofence.get_val(),
 			account!.id
 		)
@@ -125,7 +92,7 @@ export default () => {
 		)
 	})
 
-	router.get("/subscription", auth, async (req, res) => {
+	router.get("/subscriptions", auth, async (req, res) => {
 		const { account } = req
 
 		const result = await parent_service.subscriptions(account!.id)

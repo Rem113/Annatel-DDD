@@ -5,6 +5,7 @@ import { Watch } from "../../domain/watch/watch.agg"
 import { injectable, inject } from "tsyringe"
 import { IWatchModel } from "./watch_model"
 import { WatchMapper } from "./watch_mapper"
+import { UniqueId } from "../../domain/core/entity"
 
 @injectable()
 export default class WatchRepository implements IWatchRepository {
@@ -21,6 +22,13 @@ export default class WatchRepository implements IWatchRepository {
 		const watch = await this.watch_model
 			.findOne({ serial: serial.serial, vendor })
 			.exec()
+
+		if (watch) return Maybe.some(WatchMapper.from_persistance(watch))
+		return Maybe.none()
+	}
+
+	async with_id(id: UniqueId): Promise<Maybe<Watch>> {
+		const watch = await this.watch_model.findById(id.to_string()).exec()
 
 		if (watch) return Maybe.some(WatchMapper.from_persistance(watch))
 		return Maybe.none()

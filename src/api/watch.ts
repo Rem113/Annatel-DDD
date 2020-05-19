@@ -8,6 +8,7 @@ import {
 import { Serial } from "../domain/watch/serial.vo"
 import { MessageType, Message } from "../domain/watch/message.e"
 import Should from "../domain/core/should"
+import { UniqueId } from "../domain/core/entity"
 
 export default () => {
 	const router = Router()
@@ -63,20 +64,10 @@ export default () => {
 		)
 	})
 
-	router.get("/message", async (req, res) => {
-		const { vendor } = req.body
+	router.get("/:id/messages", async (req, res) => {
+		const id = new UniqueId(req.params.id)
 
-		const serial = Serial.create({ serial: req.body.serial })
-
-		if (serial.is_err())
-			return res.status(400).json({
-				serial: serial.get_err(),
-			})
-
-		const result = await watch_service.read_messages_of(
-			serial.get_val(),
-			vendor
-		)
+		const result = await watch_service.read_messages_of(id)
 
 		return result.fold(
 			(err) => {
@@ -91,17 +82,10 @@ export default () => {
 		)
 	})
 
-	router.get("/location", async (req, res) => {
-		const { vendor } = req.body
+	router.get("/:id/location", async (req, res) => {
+		const id = new UniqueId(req.params.id)
 
-		const serial = Serial.create({ serial: req.body.serial })
-
-		if (serial.is_err())
-			return res.status(400).json({
-				serial: serial.get_err(),
-			})
-
-		const result = await watch_service.get_location_of(serial.get_val(), vendor)
+		const result = await watch_service.get_location_of(id)
 
 		return result.fold(
 			(err) => {
