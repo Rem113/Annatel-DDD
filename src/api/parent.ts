@@ -10,12 +10,17 @@ export default () => {
 
   const parent_service = container.resolve(ParentService)
 
-  router.put("/watch/:id/subscribe", auth, async (req, res) => {
-    const id = new UniqueId(req.params.id)
+  router.put("/watch/subscribe", auth, async (req, res) => {
+    const { serial, vendor } = req.body
     const { account } = req
     const { name } = req.body
 
-    const maybe = await parent_service.subscribe_to(id, account!.id, name)
+    const maybe = await parent_service.subscribe_to(
+      account!.id,
+      serial,
+      vendor,
+      name
+    )
 
     // TODO: Handle different failures
     return maybe.fold(

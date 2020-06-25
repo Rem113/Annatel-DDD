@@ -7,35 +7,35 @@ import { Hash } from "./hash.vo"
 import jwt from "jsonwebtoken"
 
 export interface AccountProps extends EntityProps {
-	email: Email
-	password: Password | Hash
-	inserted_at?: Date
-	updated_at?: Date
+  email: Email
+  password: Password | Hash
+  inserted_at?: Date
+  updated_at?: Date
 }
 
 export class Account extends AggregateRoot<AccountProps> {
-	static create(props: AccountProps): Result<Account> {
-		return Result.ok(new Account(props))
-	}
+  static create(props: AccountProps): Result<Account> {
+    return Result.ok(new Account(props))
+  }
 
-	get email(): string {
-		return this.props.email.email
-	}
+  get email(): string {
+    return this.props.email.email
+  }
 
-	get password_hash(): string {
-		return this.props.password.hash
-	}
+  get password_hash(): string {
+    return this.props.password.hash
+  }
 
-	get inserted_at(): Date | undefined {
-		return this.props.inserted_at
-	}
+  get inserted_at(): Date | undefined {
+    return this.props.inserted_at
+  }
 
-	get updated_at(): Date | undefined {
-		return this.props.updated_at
-	}
+  get updated_at(): Date | undefined {
+    return this.props.updated_at
+  }
 
-	generate_token(): string {
-		const payload = { id: this.id.to_string(), email: this.email }
-		return jwt.sign(payload, process.env.SECRET!, { expiresIn: 3600 })
-	}
+  generate_token(): string {
+    const payload = { id: this.id.to_string(), email: this.email }
+    return jwt.sign(payload, process.env.SECRET!, { expiresIn: 7 * 3600 })
+  }
 }

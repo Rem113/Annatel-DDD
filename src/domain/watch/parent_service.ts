@@ -17,6 +17,7 @@ import { Geofence, GeofenceProps } from "./geofence.vo"
 import Either from "../core/either"
 import { build_subscriptions_dto, SubscriptionsDTO } from "./parent_dtos"
 import { InvalidInput } from "../account/account_failures"
+import { Serial } from "./serial.vo"
 
 @injectable()
 export class ParentService {
@@ -32,12 +33,16 @@ export class ParentService {
   }
 
   async subscribe_to(
-    watch_id: UniqueId,
     account: UniqueId,
-    name: String
+    serial: string,
+    vendor: string,
+    name: string
   ): Promise<Maybe<SubscribeToFailure>> {
     // Find the watch
-    const maybe_watch = await this.watch_repo.with_id(watch_id)
+    const maybe_watch = await this.watch_repo.with_serial_and_vendor(
+      Serial.create({ serial }),
+      vendor
+    )
 
     if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 
