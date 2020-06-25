@@ -143,11 +143,14 @@ export class ParentService {
   async subscriptions(
     account: UniqueId
   ): Promise<Either<SubscriptionsFailure, SubscriptionsDTO>> {
-    const maybe_parent = await this.parent_repo.with_account(account)
-
-    if (maybe_parent.is_none()) return Either.left(new ParentNotFoundFailure())
-
-    const parent = maybe_parent.get_val()
+    let parent = await (await this.parent_repo.with_account(account)).fold(
+      (parent) => parent,
+      () =>
+        Parent.create({
+          account,
+          subscriptions: [],
+        })
+    )
 
     return Either.right(build_subscriptions_dto(parent.subscriptions))
   }
