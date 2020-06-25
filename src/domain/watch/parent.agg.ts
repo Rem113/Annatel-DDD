@@ -2,7 +2,6 @@ import { EntityProps, UniqueId } from "../core/entity"
 import { AggregateRoot } from "../core/aggregate_root"
 import { Subscription } from "./subscription.e"
 import { Geofence } from "./geofence.vo"
-import Either from "../core/either"
 import { Maybe } from "../core/maybe"
 
 export interface ParentProps extends EntityProps {
