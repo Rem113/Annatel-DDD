@@ -48,17 +48,16 @@ export class ParentService {
 
     const watch = maybe_watch.get_val()
 
-    const maybe_parent = await this.parent_repo.with_account(account)
-
-    let parent: Parent
-
-    if (maybe_parent.has_some()) parent = maybe_parent.get_val()
-    else {
-      parent = Parent.create({
-        account,
-        subscriptions: [],
-      })
-    }
+    const parent: Parent = await (
+      await this.parent_repo.with_account(account)
+    ).fold(
+      (parent) => parent,
+      () =>
+        Parent.create({
+          account,
+          subscriptions: [],
+        })
+    )
 
     return parent.subscribe_to(watch.id, name).fold(
       (err) => Maybe.some(new InvalidInput(err)),
