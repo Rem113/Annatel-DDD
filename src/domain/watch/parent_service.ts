@@ -1,12 +1,12 @@
 import IParentRepository from "./i_parent_repository"
 import { Maybe } from "../core/maybe"
 import {
-	SubscribeToFailure,
-	InvalidWatchDataFailure,
-	UnsubscribeFromFailure,
-	ParentNotFoundFailure,
-	DefineGeofenceForFailure,
-	SubscriptionsFailure,
+  SubscribeToFailure,
+  InvalidWatchDataFailure,
+  UnsubscribeFromFailure,
+  ParentNotFoundFailure,
+  DefineGeofenceForFailure,
+  SubscriptionsFailure,
 } from "./parent_failures"
 import IWatchRepository from "./i_watch_repository"
 import { UniqueId } from "../core/entity"
@@ -16,132 +16,134 @@ import { SubscriptionCreated, SubscriptionCancelled } from "./parent_events"
 import { Geofence, GeofenceProps } from "./geofence.vo"
 import Either from "../core/either"
 import { build_subscriptions_dto, SubscriptionsDTO } from "./parent_dtos"
+import { InvalidInput } from "../account/account_failures"
 
 @injectable()
 export class ParentService {
-	private readonly parent_repo: IParentRepository
-	private readonly watch_repo: IWatchRepository
+  private readonly parent_repo: IParentRepository
+  private readonly watch_repo: IWatchRepository
 
-	constructor(
-		@inject("IParentRepository") parent_repo: IParentRepository,
-		@inject("IWatchRepository") watch_repo: IWatchRepository
-	) {
-		this.parent_repo = parent_repo
-		this.watch_repo = watch_repo
-	}
+  constructor(
+    @inject("IParentRepository") parent_repo: IParentRepository,
+    @inject("IWatchRepository") watch_repo: IWatchRepository
+  ) {
+    this.parent_repo = parent_repo
+    this.watch_repo = watch_repo
+  }
 
-	async subscribe_to(
-		watch_id: UniqueId,
-		account: UniqueId
-	): Promise<Maybe<SubscribeToFailure>> {
-		// Find the watch
-		const maybe_watch = await this.watch_repo.with_id(watch_id)
+  async subscribe_to(
+    watch_id: UniqueId,
+    account: UniqueId,
+    name: String
+  ): Promise<Maybe<SubscribeToFailure>> {
+    // Find the watch
+    const maybe_watch = await this.watch_repo.with_id(watch_id)
 
-		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
+    if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 
-		const watch = maybe_watch.get_val()
+    const watch = maybe_watch.get_val()
 
-		const maybe_parent = await this.parent_repo.with_account(account)
+    const maybe_parent = await this.parent_repo.with_account(account)
 
-		let parent: Parent
+    let parent: Parent
 
-		if (maybe_parent.has_some()) parent = maybe_parent.get_val()
-		else {
-			parent = Parent.create({
-				account,
-				subscriptions: [],
-			})
-		}
+    if (maybe_parent.has_some()) parent = maybe_parent.get_val()
+    else {
+      parent = Parent.create({
+        account,
+        subscriptions: [],
+      })
+    }
 
-		const added = parent.subscribe_to(watch.id)
+    return parent.subscribe_to(watch.id, name).fold(
+      (err) => Maybe.some(new InvalidInput(err)),
+      async () => {
+        parent.dispatch_event(new SubscriptionCreated(parent.id))
+        await this.parent_repo.save(parent)
+        return Maybe.none()
+      }
+    )
+  }
 
-		if (added) {
-			parent.dispatch_event(new SubscriptionCreated(parent.id))
-			await this.parent_repo.save(parent)
-		}
+  async unsubscribe_from(
+    watch_id: UniqueId,
+    account: UniqueId
+  ): Promise<Maybe<UnsubscribeFromFailure>> {
+    // Find the watch
+    const maybe_watch = await this.watch_repo.with_id(watch_id)
 
-		return Maybe.none()
-	}
+    if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 
-	async unsubscribe_from(
-		watch_id: UniqueId,
-		account: UniqueId
-	): Promise<Maybe<UnsubscribeFromFailure>> {
-		// Find the watch
-		const maybe_watch = await this.watch_repo.with_id(watch_id)
+    const watch = maybe_watch.get_val()
 
-		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
+    const maybe_parent = await this.parent_repo.with_account(account)
 
-		const watch = maybe_watch.get_val()
+    if (maybe_parent.is_none()) return Maybe.some(new ParentNotFoundFailure())
 
-		const maybe_parent = await this.parent_repo.with_account(account)
+    const parent = maybe_parent.get_val()
 
-		if (maybe_parent.is_none()) return Maybe.some(new ParentNotFoundFailure())
+    const removed = parent.unsubscribe_from(watch.id)
 
-		const parent = maybe_parent.get_val()
+    if (removed) {
+      parent.dispatch_event(new SubscriptionCancelled(parent.id))
 
-		const removed = parent.unsubscribe_from(watch.id)
+      await this.parent_repo.save(parent)
+    }
 
-		if (removed) {
-			parent.dispatch_event(new SubscriptionCancelled(parent.id))
+    return Maybe.none()
+  }
 
-			await this.parent_repo.save(parent)
-		}
+  async define_geofence_for(
+    watch_id: UniqueId,
+    geofence_props: GeofenceProps,
+    account: UniqueId
+  ): Promise<Maybe<DefineGeofenceForFailure>> {
+    // Find the watch
+    const maybe_watch = await this.watch_repo.with_id(watch_id)
 
-		return Maybe.none()
-	}
+    if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
 
-	async define_geofence_for(
-		watch_id: UniqueId,
-		geofence_props: GeofenceProps,
-		account: UniqueId
-	): Promise<Maybe<DefineGeofenceForFailure>> {
-		// Find the watch
-		const maybe_watch = await this.watch_repo.with_id(watch_id)
+    const watch = maybe_watch.get_val()
 
-		if (maybe_watch.is_none()) return Maybe.some(new InvalidWatchDataFailure())
+    const maybe_parent = await this.parent_repo.with_account(account)
 
-		const watch = maybe_watch.get_val()
+    let parent: Parent
 
-		const maybe_parent = await this.parent_repo.with_account(account)
+    if (maybe_parent.has_some()) parent = maybe_parent.get_val()
+    else {
+      parent = Parent.create({
+        account,
+        subscriptions: [],
+      })
+    }
 
-		let parent: Parent
+    let geofence
 
-		if (maybe_parent.has_some()) parent = maybe_parent.get_val()
-		else {
-			parent = Parent.create({
-				account,
-				subscriptions: [],
-			})
-		}
+    try {
+      geofence = Geofence.create(geofence_props)
+    } catch (err) {
+      return Maybe.some(new InvalidWatchDataFailure(err))
+    }
 
-		let geofence
+    const defined = parent.define_geofence_for(watch.id, geofence)
 
-		try {
-			geofence = Geofence.create(geofence_props)
-		} catch (err) {
-			return Maybe.some(new InvalidWatchDataFailure(err))
-		}
+    if (defined) {
+      // Fire an event
+      this.parent_repo.save(parent)
+    }
 
-		const defined = parent.define_geofence_for(watch.id, geofence)
+    return Maybe.none()
+  }
 
-		if (defined) {
-			// Fire an event
-			this.parent_repo.save(parent)
-		}
+  async subscriptions(
+    account: UniqueId
+  ): Promise<Either<SubscriptionsFailure, SubscriptionsDTO>> {
+    const maybe_parent = await this.parent_repo.with_account(account)
 
-		return Maybe.none()
-	}
+    if (maybe_parent.is_none()) return Either.left(new ParentNotFoundFailure())
 
-	async subscriptions(
-		account: UniqueId
-	): Promise<Either<SubscriptionsFailure, SubscriptionsDTO>> {
-		const maybe_parent = await this.parent_repo.with_account(account)
+    const parent = maybe_parent.get_val()
 
-		if (maybe_parent.is_none()) return Either.left(new ParentNotFoundFailure())
-
-		const parent = maybe_parent.get_val()
-
-		return Either.right(build_subscriptions_dto(parent.subscriptions))
-	}
+    return Either.right(build_subscriptions_dto(parent.subscriptions))
+  }
 }
