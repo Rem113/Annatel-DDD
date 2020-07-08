@@ -15,7 +15,6 @@ export class Serial extends ValueObject<SerialProps> {
     ])
     if (error.has_some()) throw error.get_val()
 
-    if (props.serial.length < 9) throw "Serial number is invalid"
     return new Serial(props)
   }
 
